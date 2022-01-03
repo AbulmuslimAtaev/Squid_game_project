@@ -24,7 +24,7 @@ def load_image(name, colorkey=None):
 
 
 class Form(pygame.sprite.Sprite):
-    image = load_image("lightning.png", -1)
+    image = load_image("good_circle.png", -1)
 
     def __init__(self):
         super().__init__(all_sprites)
@@ -65,13 +65,13 @@ class Spot(pygame.sprite.Sprite):
             print("Проиграл")
 
 
-
 all_sprites = pygame.sprite.Group()
 drawed = pygame.sprite.Group()
 running = True
 clock = pygame.time.Clock()
 cookie = Cookie()
 star_form = Form()
+all_poses = set()
 pygame.display.set_caption("PySquid")
 while running:
     for event in pygame.event.get():
@@ -80,8 +80,17 @@ while running:
     press = pygame.mouse.get_pressed()
     if press[0]:
         pos = pygame.mouse.get_pos()
-        drawed.add(Spot(pos))
-        drawed.update()
+        if pos not in all_poses:
+            all_poses.add(pos)
+            spot = Spot(pos)
+            drawed.add(spot)
+            drawed.update()
+            xs = [i[0] for i in all_poses]
+            ys = [i[1] for i in all_poses]
+
+            if len(xs) > 544 and len(ys) > 544:
+                print('Победа')
+                print(len(xs), len(ys))
     all_sprites.update()
     screen.fill(pygame.Color('grey'))
     all_sprites.draw(screen)
