@@ -4,7 +4,7 @@ import pygame
 
 
 def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+    fullname = os.path.join('images', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
@@ -43,6 +43,25 @@ class Cookie(pygame.sprite.Sprite):
         self.rect.y = (height - self.rect.h) // 2
 
 
+class Part(pygame.sprite.Sprite):
+    flag = True
+
+    def __init__(self, pos):
+        super(Part, self).__init__()
+        self.image = pygame.Surface((1, 1), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, pygame.Color("Brown"), (1, 1), 1)
+        self.rect = self.image.get_rect()
+        self.rect.x = (width - pos[0]) // 2 + 70
+        self.rect.y = (height - pos[1]) // 2 + 70
+
+    def update(self):
+        if not pygame.sprite.spritecollideany(self, drawed):
+            Part.flag = False
+
+    def null_flag(self):
+        Part.flag = True
+
+
 class Spot(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__(all_sprites)
@@ -51,56 +70,56 @@ class Spot(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = pos[0] - 2
         self.rect.y = pos[1] - 2
-
-    def update(self):
-        if not pygame.sprite.collide_mask(self, form):
+        if not pygame.sprite.spritecollideany(self, parts_sprites):
             print("Проиграл")
 
 
 size = width, height = 700, 500
-FPS = 60
 
 
 def game_run(level):
-    drawed = pygame.sprite.Group()
-    clock = pygame.time.Clock()
-
     screen = pygame.display.set_mode(size)
     screen.fill(pygame.Color('white'))
-    all_poses = set()
     pygame.display.set_caption("PySquid")
 
     global all_sprites
+    global parts_sprites
+    global drawed
     global cookie
-    global form
+    # global form
 
     all_sprites = pygame.sprite.Group()
+    parts_sprites = pygame.sprite.Group()
+    drawed = pygame.sprite.Group()
     cookie = Cookie()
-    form = Form(level)
+    # form = Form(level)
 
+    with open(fr'files/{level}.txt', 'r', encoding='utf-8') as f:
+        for i in f.readline().split(' '):
+            if i:
+                pos = tuple([int(j) for j in i.split(';')])
+                part = Part(pos)
+                parts_sprites.add(part)
     running = True
     while running:
-        clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
         press = pygame.mouse.get_pressed()
         if press[0]:
             pos = pygame.mouse.get_pos()
-            if pos not in all_poses:
-                all_poses.add(pos)
-                spot = Spot(pos)
-                drawed.add(spot)
-                drawed.update()
-                xs = [i[0] for i in all_poses]
-                ys = [i[1] for i in all_poses]
-
-                if len(xs) > 544 and len(ys) > 544:
-                    print('Победа')
-                    return
+            spot = Spot(pos)
+            drawed.add(spot)
+            drawed.update()
+            parts_sprites.update()
+            if Part.flag:
+                print('ПОБЕДААААААА')
+            Part.null_flag(1)
         all_sprites.update()
         screen.fill(pygame.Color('grey'))
         all_sprites.draw(screen)
+        parts_sprites.draw(screen)
+        drawed.draw(screen)
         pygame.display.flip()
     pygame.quit()
 
