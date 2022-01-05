@@ -1,4 +1,5 @@
 import os
+import random
 import sys
 import pygame
 
@@ -35,7 +36,7 @@ class Form(pygame.sprite.Sprite):
 class Cookie(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(all_sprites)
-        self.image = load_image("universla_cookie.png")
+        self.image = load_image("cookie3.png", -1)
         self.image = pygame.transform.scale(self.image, (300, 300))
         self.rect = self.image.get_rect()
         print(self.image.get_at((150, 150)))
@@ -44,22 +45,25 @@ class Cookie(pygame.sprite.Sprite):
 
 
 class Part(pygame.sprite.Sprite):
-    flag = True
+    flag = 1
+    colors = [(166, 88, 41), (184, 98, 46), (147, 77, 36), (179, 100, 54), (121, 74, 46), (92, 57, 37)]
 
     def __init__(self, pos):
         super(Part, self).__init__()
         self.image = pygame.Surface((1, 1), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, pygame.Color("Brown"), (1, 1), 1)
+        pygame.draw.circle(self.image, random.choice(Part.colors), (1, 1), 1)
         self.rect = self.image.get_rect()
-        self.rect.x = (width - pos[0]) // 2 + 70
-        self.rect.y = (height - pos[1]) // 2 + 70
+        self.rect.x = 0.8 * pos[0] + width // 4 + 60
+        self.rect.y = 0.8 * pos[1] + height // 4 + 20
 
     def update(self):
         if not pygame.sprite.spritecollideany(self, drawed):
-            Part.flag = False
+            Part.flag = 0
+        else:
+            self.update = lambda: None
 
     def null_flag(self):
-        Part.flag = True
+        Part.flag = 1
 
 
 class Spot(pygame.sprite.Sprite):
@@ -114,7 +118,7 @@ def game_run(level):
             parts_sprites.update()
             if Part.flag:
                 print('ПОБЕДААААААА')
-            Part.null_flag(1)
+            Part.null_flag(None)
         all_sprites.update()
         screen.fill(pygame.Color('grey'))
         all_sprites.draw(screen)
@@ -125,4 +129,4 @@ def game_run(level):
 
 
 if __name__ == '__main__':
-    game_run('lightning')
+    game_run('circle')
