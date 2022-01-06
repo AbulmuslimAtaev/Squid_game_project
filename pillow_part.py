@@ -8,7 +8,6 @@ def pic2text(imagename):
     resized_img = im.resize((_WIDTH, _HEIGHT), Image.ANTIALIAS)
     pixels = resized_img.load()
     x, y = resized_img.size
-    print(x, y)
     values = []
     for i in range(x):
         for j in range(y):
