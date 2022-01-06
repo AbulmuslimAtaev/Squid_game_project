@@ -3,8 +3,8 @@ def pic2text(imagename):
 
     im = Image.open(f'images/{imagename}.png')
     pixels = im.load()
-    _WIDTH = 50
-    _HEIGHT = 50
+    _WIDTH = 100
+    _HEIGHT = 100
     resized_img = im.resize((_WIDTH, _HEIGHT), Image.ANTIALIAS)
     pixels = resized_img.load()
     x, y = resized_img.size
