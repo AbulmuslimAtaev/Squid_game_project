@@ -6,7 +6,8 @@ from pillow_part import pic2text
 size = width, height = 700, 500
 screen = pygame.display.set_mode(size)
 screen.fill(pygame.Color('white'))
-IMAGE_NAME = "cloud"
+IMAGE_NAME = "star4"
+
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('images', name)
@@ -34,7 +35,6 @@ class Form(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = (width - self.rect.w) // 2
         self.rect.y = (height - self.rect.h) // 2
-        # вычисляем маску для эффективного сравнения
         self.mask = pygame.mask.from_surface(self.image)
 
 
@@ -59,8 +59,6 @@ class Spot(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = pos[0] - 2
         self.rect.y = pos[1] - 2
-
-    def update(self):
         if not pygame.sprite.collide_mask(self, star_form):
             print("Проиграл")
 
@@ -72,10 +70,10 @@ class Check_Form(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__(all_sprites)
         self.image = pygame.Surface((5, 5), pygame.SRCALPHA)
-        # self.image.fill((0, 0, 0))
+        self.image.fill((0, 0, 0))
         self.rect = self.image.get_rect()
-        self.rect.x = (width - 200) // 2 + pos[0] * 4 - 1
-        self.rect.y = (height - 200) // 2 + pos[1] * 4 - 1
+        self.rect.x = (width - 200) // 2 + pos[0] * 4/2 - 1
+        self.rect.y = (height - 200) // 2 + pos[1] * 4/2 - 1
 
 
 def draw_update():
@@ -92,6 +90,7 @@ for i in values:
 drawed = pygame.sprite.Group()
 check_form = pygame.sprite.Group
 running = True
+flag = True
 clock = pygame.time.Clock()
 cookie = Cookie()
 star_form = Form()
@@ -103,15 +102,15 @@ while running:
     press = pygame.mouse.get_pressed()
     if press[0]:
         pos = pygame.mouse.get_pos()
-        drawed.add(Spot(pos))
-        drawed.update()
-        if draw_update():
-            running = False
-    all_sprites.update()
+        if flag:
+            drawed.add(Spot(pos))
+            drawed.update()
+            if draw_update():
+                print('Победа')
+                flag = False
     screen.fill(pygame.Color('grey'))
     all_sprites.draw(screen)
     drawed_check.draw(screen)
+    drawed.draw(screen)
     pygame.display.flip()
-if not running:
-    print("Победа")
 pygame.quit()
