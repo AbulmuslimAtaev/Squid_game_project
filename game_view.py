@@ -9,7 +9,7 @@ from pillow_part import pic2text
 size = width, height = 700, 500
 screen = pygame.display.set_mode(size)
 screen.fill(pygame.Color('white'))
-IMAGE_NAME = "star4"
+IMAGE_NAME = "cloud"
 
 
 def load_image(name, colorkey=None):
@@ -103,9 +103,14 @@ class Check_Form(pygame.sprite.Sprite):
 
 
 def draw_update():
+    fg = True
     for i in drawed_check.sprites():
         if not pygame.sprite.spritecollideany(i, drawed):
-            return False
+            fg = False
+        else:
+            i.kill()
+    if not fg:
+        return False
     return True
 
 MYEVENTTYPE = pygame.USEREVENT + 1
