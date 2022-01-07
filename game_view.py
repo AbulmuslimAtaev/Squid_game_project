@@ -1,4 +1,5 @@
 import os
+from random import randint
 import sys
 from itertools import cycle
 
@@ -8,7 +9,7 @@ from pillow_part import pic2text
 size = width, height = 700, 500
 screen = pygame.display.set_mode(size)
 screen.fill(pygame.Color('white'))
-IMAGE_NAME = "lighting"
+IMAGE_NAME = "star4"
 
 
 def load_image(name, colorkey=None):
@@ -45,7 +46,8 @@ class Igla(pygame.sprite.Sprite):
         self.rect.y = pos[1]
 
     def turn(self):
-        self.image = Igla.images[next(self.num)]
+        self.image = Igla.images[randint(4, 12)]
+        # self.image = Igla.images[next(self.num)]
 
 class Form(pygame.sprite.Sprite):
     image = load_image(f"{IMAGE_NAME}.png", -1)
@@ -96,8 +98,8 @@ class Check_Form(pygame.sprite.Sprite):
         self.image = pygame.Surface((5, 5), pygame.SRCALPHA)
         # self.image.fill((0, 0, 0))
         self.rect = self.image.get_rect()
-        self.rect.x = (width - 200) // 2 + pos[0] * 4 - 1
-        self.rect.y = (height - 200) // 2 + pos[1] * 4 - 1
+        self.rect.x = (width - 200) // 2 + pos[0] * 2 - 1
+        self.rect.y = (height - 200) // 2 + pos[1] * 2 - 1
 
 
 def draw_update():
@@ -132,8 +134,9 @@ while running:
         if flag:
             igla.turn()
             flag = False
-        drawed.add(Spot(pos))
-        drawed.update()
+        spot = Spot(pos)
+        drawed.add(spot)
+        spot.update()
         if draw_update():
             running = False
     all_sprites.update()
