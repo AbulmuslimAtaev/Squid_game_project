@@ -111,18 +111,18 @@ class UMenu:
         self.general = general
         self.all_sprites = pygame.sprite.Group()
         self.rect = screen.get_rect()
+        self.running = True
         self.wids = list()
 
-    def mainloop(self):
+    def mainloop(self, color='blue'):
         mouse_sprite = Sprite_Mouse_Location()
-        running = True
         self.draw_all()
         pygame.display.flip()
-        while running:
-            screen.fill('blue')
+        while self.running:
+            screen.fill(color)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    pygame.quit()
                 elif event.type == pygame.MOUSEMOTION:
                     mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
                     for i in self.all_sprites:
@@ -133,8 +133,6 @@ class UMenu:
                         i.click_check(mouse_sprite)
             self.all_sprites.draw(self.screen)
             pygame.display.flip()
-        if self.general:
-            pygame.quit()
 
     def addWidget(self, wid):
         self.all_sprites.add(wid)
@@ -145,38 +143,32 @@ class UMenu:
         for wid in self.wids:
             wid.draw()
 
-
-class ULevel(UWidget):
-    def __init__(self, menu, pos):
-        super(ULevel, self).__init__(menu)
-        print(pos)
-        self.image = pygame.Surface((pos[2] + pos[0], pos[3] + pos[1]), pygame.SRCALPHA)
-        self.rect = self.image.get_rect()
-        self.rect.x = pos[0]
-        self.rect.y = pos[1]
-        pygame.draw.rect(self.image, pygame.Color('red'), pos, border_radius=20)
-
+    def close(self):
+        self.running = False
 
 
 class ULevelsPlace(UWidget):
-    def __init__(self, menu):
+    def __init__(self, menu, func):
         super(ULevelsPlace, self).__init__(menu)
         self.checked = 0
         self.lvl_name = 'circle'
         self.levels = list()
-        self.rows = 1
-        self.cols = 1
+        self.rows = 3
+        self.cols = 3
         self.width = self.menu.rect.w
         self.height = self.menu.rect.h
+        self.func = func
 
     def addLevel(self, image, name):
         self.levels.append((image, name))
 
     def draw(self):
-        self.image = pygame.Surface((self.width, self.height + 100), pygame.SRCALPHA)
+        self.image = pygame.Surface((self.width, self.height - 5), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         pygame.draw.rect(self.image, pygame.Color('gray'), (0, 0, self.width, self.height))
         part_x = 10 if len(self.levels) == 0 else (self.rect.w - self.rows * 10 - 10) // self.rows
+        self.cell_size_x = part_x
+        self.cell_size_y = (self.rect.h - 10) // (self.cols)
         count = 0
         for i in range(self.rows):
             for j in range(1, self.cols + 1):
@@ -184,43 +176,36 @@ class ULevelsPlace(UWidget):
                     image_lvl = self.levels[count][0]
                     lvl_name = self.levels[count][1]
                     pygame.draw.rect(self.image, pygame.Color('red'), (10 * j + part_x * (j - 1),
-                                                                       10 + (i * self.rect.h - 10) // (self.cols + 1),
+                                                                       10 + (i * self.rect.h + 10) // (self.cols) - 10,
                                                                        part_x,
-                                                                       (self.rect.h - 10) // (self.cols + 1)), border_radius=20)
+                                                                       (self.rect.h - 10) // (self.cols)),
+                                     border_radius=20)
                     cookie_img = load_image('universla_cookie.png')
-                    cookie_img = pygame.transform.scale(cookie_img, (part_x, (self.rect.h - 100) // (self.cols + 1)))
+                    cookie_img = pygame.transform.scale(cookie_img, (part_x, (self.rect.h - 100) // (self.cols)))
                     self.image.blit(cookie_img,
-                                    (10 * j + part_x * (j - 1), 10 + (i * self.rect.h - 10) // (self.cols + 1)))
-                    image_lvl = pygame.transform.scale(image_lvl, (part_x, (self.rect.h - 100) // (self.cols + 1)))
-                    self.image.blit(image_lvl, (10 * j + part_x * (j - 1), 10 + (i * self.rect.h - 10) // (self.cols + 1)))
+                                    (10 * j + part_x * (j - 1),
+                                     10 + (i * self.rect.h + 10) // (self.cols)))
+                    image_lvl = pygame.transform.scale(image_lvl,
+                                                       (part_x,
+                                                        (self.rect.h - 100) // (self.cols)))
+                    self.image.blit(image_lvl,
+                                    (10 * j + part_x * (j - 1),
+                                     10 + (i * self.rect.h + 10) // (self.cols)))
 
                     font = pygame.font.Font(pygame.font.match_font('calibri'), 20)
-                    text_pg = font.render(f'{lvl_name} {chr(2606)}', True, (0, 0, 0))
-                    self.image.blit(text_pg, (10 * (j + 1) + part_x * (j - 1), ((self.rect.h - 10) // (self.cols + 1) + 10 + (i * self.rect.h - 10) // (self.cols + 1)) - text_pg.get_height()))
+                    text_pg = font.render(f'{lvl_name}', True, (0, 0, 0))
+                    self.image.blit(text_pg, (10 + 10 * (j + 1) + part_x * (j - 1),
+                                              (((i + 1) * self.rect.h + 10) // (self.cols)) - text_pg.get_height()))
                     count += 1
 
     def click_check(self, pos):
         if pygame.sprite.collide_rect(pos, self):
-            for i in range(self.rows):
-                for j in range(self.cols):
-                    part_x = 10 if len(self.levels) == 0 else (self.rect.w - self.rows * 10 - 10) // self.rows
-                    print(10 * j + part_x * (j - 1),
-                          10 + (i * self.rect.h - 10) // (self.cols + 1),
-                          part_x,
-                          (self.rect.h - 10) // (self.cols + 1))
-
-                    # if pos.rect.x > (self.rect.w // self.cols) * i > part_x and\
-                    #         pos.rect.y > (self.rect.h // self.rows) * j > 10 * j + part_x * (j - 1):
-                    #     pygame.draw.circle(self.image, pygame.Color('red'),
-                    #                        ((self.rect.w // self.cols + 10) * i,
-                    #                         pos.rect.y > (self.rect.h // self.rows + 10) * j,), 1)
-                    #     self.checked = (j, i)
-            # print(self.checked[0] * self.rows + self.checked[1], self.checked, self.rows)
+            cell_x = (pos.rect.x - 10) // self.cell_size_x
+            cell_y = (pos.rect.y - 10) // self.cell_size_y
+            if cell_x < 0 or cell_x >= self.rows or cell_y < 0 or cell_y >= self.cols:
+                return
+            self.func(self.levels[(cell_x * self.rows) + cell_y][0])
         self.draw()
-
-    def add_rows_cols(self, rows, cols):
-        self.rows = rows
-        self.cols = cols
 
     def change_size(self, width, height):
         self.width = width
@@ -228,9 +213,8 @@ class ULevelsPlace(UWidget):
 
 
 class UMusicButton(UWidget):
-    def __init__(self, menu, text):
+    def __init__(self, menu):
         super(UMusicButton, self).__init__(menu)
-        self.text = text
         self.music_is = False
 
     def draw(self, color='black'):
@@ -252,12 +236,28 @@ class UMusicButton(UWidget):
             self.music_is = not self.music_is
 
 
+class UBackButton(UWidget):
+    def __init__(self, menu, pos):
+        super(UBackButton, self).__init__(menu)
+        self.pos = pos
+
+    def draw(self, color='black'):
+        self.image = pygame.transform.scale(load_image('back.png', -1), (self.pos[2], self.pos[3]))
+        self.rect = self.image.get_rect()
+        pygame.draw.rect(self.image, 'black', self.pos)
+        self.rect.x = self.pos[0]
+        self.rect.y = self.pos[1]
+
+    def click_check(self, pos):
+        if pygame.sprite.collide_rect(pos, self):
+            self.menu.close()
+
+
 def go_to_levels():
-    screen2 = pygame.display.set_mode((800, 800))
-    menu_lvl = UMenu(screen2, general=False)
-    levels_place = ULevelsPlace(menu_lvl)
-    levels_place.add_rows_cols(3, 3)
-    levels_place.change_size(800, 800)
+    screen2 = pygame.display.set_mode((700, 500))
+    menu_lvl = UMenu(screen2)
+    levels_place = ULevelsPlace(menu_lvl, start_the_game)
+    levels_place.change_size(700, 450)
     levels_place.addLevel(load_image('star4.png', -1), 'star')
     levels_place.addLevel(load_image('star4.png', -1), 'star')
     levels_place.addLevel(load_image('star4.png', -1), 'star')
@@ -267,7 +267,8 @@ def go_to_levels():
     levels_place.addLevel(load_image('star4.png', -1), 'star')
     levels_place.addLevel(load_image('star4.png', -1), 'star')
     levels_place.addLevel(load_image('star4.png', -1), 'star')
-    menu_lvl.mainloop()
+    back_btn = UBackButton(menu_lvl, (0, 450, 700, 50))
+    menu_lvl.mainloop('gray')
 
 
 def start_the_game(lvl_name):
@@ -275,10 +276,10 @@ def start_the_game(lvl_name):
 
 
 pygame.init()
-width, height = 800, 800
+width, height = 700, 500
 screen = pygame.display.set_mode((width, height))
 menu = UMenu(screen)
 button = UButton(menu, go_to_levels, text='start')
-button2 = UMusicButton(menu, text='music - on')
+button2 = UMusicButton(menu)
 pygame.display.flip()
 menu.mainloop()
