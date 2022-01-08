@@ -9,7 +9,6 @@ from pillow_part import pic2text
 size = width, height = 700, 500
 screen = pygame.display.set_mode(size)
 screen.fill(pygame.Color('white'))
-IMAGE_NAME = "cloud"
 
 
 def load_image(name, colorkey=None):
@@ -50,11 +49,10 @@ class Igla(pygame.sprite.Sprite):
         # self.image = Igla.images[next(self.num)]
 
 class Form(pygame.sprite.Sprite):
-    image = load_image(f"{IMAGE_NAME}.png", -1)
 
-    def __init__(self):
+    def __init__(self, image_name):
         super().__init__(all_sprites)
-        self.image = Form.image
+        self.image = load_image(f"{image_name}.png", -1)
         self.image = pygame.transform.scale(self.image, (200, 200))
         self.rect = self.image.get_rect()
         self.rect.x = (width - self.rect.w) // 2
@@ -83,8 +81,6 @@ class Spot(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = pos[0] - 2
         self.rect.y = pos[1] - 2
-
-    def update(self):
         if not pygame.sprite.collide_mask(self, star_form):
             print("Проиграл")
 
@@ -113,45 +109,56 @@ def draw_update():
         return False
     return True
 
-MYEVENTTYPE = pygame.USEREVENT + 1
-drawed_check = pygame.sprite.Group()
-values = pic2text(IMAGE_NAME)
-for i in values:
-    drawed_check.add(Check_Form(i))
-drawed = pygame.sprite.Group()
-check_form = pygame.sprite.Group
-running = True
-clock = pygame.time.Clock()
-cookie = Cookie()
-star_form = Form()
-igla, flag = Igla(), False
-pygame.display.set_caption("PySquid")
-pygame.time.set_timer(MYEVENTTYPE, 50)
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == MYEVENTTYPE:
-            flag = True
-    pos = pygame.mouse.get_pos()
-    press = pygame.mouse.get_pressed()
-    if press[0]:
-        if flag:
-            igla.turn()
-            flag = False
-        spot = Spot(pos)
-        drawed.add(spot)
-        spot.update()
-        if draw_update():
-            running = False
-    all_sprites.update()
-    screen.fill(pygame.Color('grey'))
-    all_sprites.draw(screen)
-    drawed_check.draw(screen)
-    if pygame.mouse.get_focused():
-        pygame.mouse.set_visible(False)
-        igla.move(pos)
-    pygame.display.flip()
-if not running:
-    print("Победа")
-pygame.quit()
+
+def game_run(image_name):
+    MYEVENTTYPE = pygame.USEREVENT + 1
+    global drawed_check
+    drawed_check = pygame.sprite.Group()
+    values = pic2text(image_name)
+    for i in values:
+        drawed_check.add(Check_Form(i))
+        global drawed
+    drawed = pygame.sprite.Group()
+    global check_form
+    check_form = pygame.sprite.Group
+    running = True
+    clock = pygame.time.Clock()
+    global cookie
+    cookie = Cookie()
+    global star_form
+    star_form = Form(image_name)
+    igla, flag = Igla(), False
+    pygame.display.set_caption("PySquid")
+    pygame.time.set_timer(MYEVENTTYPE, 50)
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == MYEVENTTYPE:
+                flag = True
+        pos = pygame.mouse.get_pos()
+        press = pygame.mouse.get_pressed()
+        if press[0]:
+            if flag:
+                igla.turn()
+                flag = False
+            spot = Spot(pos)
+            drawed.add(spot)
+            spot.update()
+            if draw_update():
+                running = False
+        all_sprites.update()
+        screen.fill(pygame.Color('grey'))
+        all_sprites.draw(screen)
+        drawed_check.draw(screen)
+        if pygame.mouse.get_focused():
+            pygame.mouse.set_visible(False)
+            igla.move(pos)
+        pygame.display.flip()
+    if not running:
+        print("Победа")
+    pygame.quit()
+
+
+if __name__ == '__main__':
+    game_run('star4')
