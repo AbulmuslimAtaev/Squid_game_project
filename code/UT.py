@@ -218,7 +218,6 @@ class UPauseMenu(UWidget):
         self.rect.x = self.menu.rect.w // 2 - self.rect.w // 2
         self.rect.y = self.menu.rect.h // 2 - self.rect.h // 2
         pygame.draw.rect(self.image, (255, 200, 200), (self.menu.rect.x // 2, self.menu.rect.y // 2, 300, 100 * len(self.buttons) + 100), border_radius=20)
-        self.update_max_text()
 
     def addButton(self, text, func):
         btn = UButton(self.menu, func, text, len(self.buttons))
