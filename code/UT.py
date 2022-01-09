@@ -68,11 +68,13 @@ class UMenu:
         self.wids = list()
         self.color = color
         self.transparent = transparent
+        self.MOUSECONSTANT = pygame.MOUSEBUTTONUP
 
     def mainloop(self):
         mouse_sprite = SpriteMouseLocation()
         self.draw_all()
         pygame.display.flip()
+        yes_flag = False
         while self.running:
             if not self.transparent:
                 self.screen.fill(self.color)
@@ -80,13 +82,15 @@ class UMenu:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                 elif event.type == pygame.MOUSEMOTION:
+                    yes_flag = True
                     mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
                     for i in self.all_sprites:
                         i.pos_check(mouse_sprite)
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
-                    for i in self.all_sprites:
-                        i.click_check(mouse_sprite)
+                elif event.type == self.MOUSECONSTANT:
+                    if yes_flag:
+                        mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
+                        for i in self.all_sprites:
+                            i.click_check(mouse_sprite)
             self.all_sprites.draw(self.screen)
             pygame.display.flip()
 
@@ -101,6 +105,9 @@ class UMenu:
 
     def close(self):
         self.running = False
+
+    def changeMouseConstantToClick(self, const):
+        self.MOUSECONSTANT = const
 
 
 class ULevelsPlace(UWidget):
@@ -230,3 +237,51 @@ class UPauseMenu(UWidget):
     #         print(max(self.buttons, key=lambda x: x.rect.x))
     #     except Exception:
     #         print('#')
+
+
+class UPauseButton(pygame.sprite.Sprite):
+    def __init__(self, group, gen_menu, screen):
+        super(UPauseButton, self).__init__(group)
+        self.image = pygame.transform.scale(load_image(r'..\images\pause.png'), (50, 50))
+        self.rect = self.image.get_rect()
+        self.gen_menu = gen_menu
+        self.screen = screen
+        self.buttons = list()
+
+    def click_check(self, pos):
+        if pygame.sprite.collide_rect(pos, self):
+            self.go_to_pause()
+            return True
+
+    def go_to_pause(self):
+        menu = UMenu(self.screen, transparent=True)
+        UBackButton(menu, (600, 400, 100, 100), self.gen_menu.mainloop)
+        ps_menu = UPauseMenu(menu)
+        for text, func in self.buttons:
+            ps_menu.addButton(text, func)
+        pygame.mouse.set_visible(True)
+        menu.mainloop()
+
+    def addButton(self, text, func):
+        self.buttons.append((text, func))
+
+
+class UFinalWindow(pygame.sprite.Sprite):
+    def __init__(self, group, screen):
+        super(UFinalWindow, self).__init__(group)
+        self.image = pygame.Surface((0, 0), pygame.SRCALPHA)
+        self.rect = self.image.get_rect()
+        self.buttons = list()
+        self.screen = screen
+
+    def addButton(self, text, func):
+        self.buttons.append((text, func))
+
+    def go(self):
+        menu = UMenu(self.screen, color='gray')
+        ps_menu = UPauseMenu(menu)
+        for text, func in self.buttons:
+            ps_menu.addButton(text, func)
+        pygame.mouse.set_visible(True)
+        menu.changeMouseConstantToClick(pygame.MOUSEBUTTONDOWN)
+        menu.mainloop()
