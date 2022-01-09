@@ -103,19 +103,21 @@ def game_run(image_name, menu=None):
     form = Form(image_name, all_sprites, size)
 
     pause = UPauseButton(all_sprites, menu, screen)
-    pause.addButton('Resume', menu.close)
-    pause.addButton('Quit', pygame.quit)
+    pause.addButton('Resume', pause.menu.close)
+    pause.addButton('Quit', sys.exit)
 
     igla = Igla(igla_sprites, size)
     mouse_sprite = SpriteMouseLocation()
+
     igla_flag = False
     running = True
     pause_flag = False
+    win_flag = False
 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                sys.exit()
             if event.type == MYEVENTTYPE:
                 igla_flag = True
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -131,8 +133,10 @@ def game_run(image_name, menu=None):
                 spot = Spot(pos, drawed)
                 if spot.check_lose(form):
                     running = False
+                    win_flag = False
                 if draw_update(drawed_check, drawed):
                     running = False
+                    win_flag = True
         screen.fill(pygame.Color('grey'))
         all_sprites.draw(screen)
         drawed.draw(screen)
@@ -146,6 +150,10 @@ def game_run(image_name, menu=None):
         final_win = UFinalWindow(all_sprites, screen)
         final_win.addButton('Back', menu.mainloop)
         final_win.addButton('Quit', sys.exit)
+        if win_flag:
+            final_win.menu.setFon(load_image('../ui_images/BigBlue.png'))
+        else:
+            final_win.menu.setFon(load_image('../ui_images/BigGray.png'))
         final_win.go()
     #
     # if menu:

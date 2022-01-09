@@ -18,7 +18,7 @@ def go_to_levels():
     levels_place.addLevel(load_image(r'..\images\star4.png', -1), 'star4')
     levels_place.addLevel(load_image(r'..\images\star4.png', -1), 'star4')
     levels_place.addLevel(load_image(r'..\images\star4.png', -1), 'star4')
-    UBackButton(menu_lvl, (0, 450, 700, 50), main)
+    UBackButton(menu_lvl, (0, 450, 50, 50), main)
     menu_lvl.mainloop()
 
 
@@ -31,6 +31,7 @@ def main():
     width, height = 700, 500
     screen = pygame.display.set_mode((width, height))
     menu = UMenu(screen)
+    menu.setFon(load_image('../ui_images/fon.jpg'))
     UButton(menu, go_to_levels, 'start', 0)
     UMusicButton(menu)
     pygame.display.flip()

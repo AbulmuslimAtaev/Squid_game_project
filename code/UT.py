@@ -1,5 +1,6 @@
 from support_funcs import SpriteMouseLocation, load_image
 import pygame
+import sys
 
 
 class UWidget(pygame.sprite.Sprite):
@@ -34,22 +35,20 @@ class UButton(UWidget):
         self.func = func
         self.num = num
 
-    def draw(self, color='black'):
+    def draw(self, image_name='BigBlue.png'):
         if self.text:
             font = pygame.font.Font(pygame.font.match_font('arial'), 50)
             text_pg = font.render(self.text, True, (255, 255, 255))
-            self.image = pygame.Surface((text_pg.get_width() + 20, text_pg.get_height() + 10), pygame.SRCALPHA)
-            pygame.draw.rect(self.image, pygame.Color(color), (0, 0,
-                                                               text_pg.get_width() + 20,
-                                                               text_pg.get_height() + 10), border_radius=20)
+            self.image = pygame.transform.scale(load_image('../ui_images/' + image_name), (text_pg.get_width() + 40, text_pg.get_height() + 20))
+
             self.rect = self.image.get_rect()
             self.rect.x = self.menu.rect.w // 2 - self.rect.w // 2
-            self.rect.y = self.menu.rect.h // 2 - self.rect.h // 2 + (text_pg.get_height() + 20) * self.num
-            self.image.blit(text_pg, (10, 0))
+            self.rect.y = self.menu.rect.h // 2 - self.rect.h // 2 + (text_pg.get_height() + 40) * self.num
+            self.image.blit(text_pg, (20, 5))
 
     def hover(self, flag):
         if flag:
-            self.draw(color='gray')
+            self.draw(image_name='BigGreen.png')
         else:
             self.draw()
 
@@ -64,13 +63,14 @@ class UMenu:
         self.general = general
         self.all_sprites = pygame.sprite.Group()
         self.rect = screen.get_rect()
-        self.running = True
         self.wids = list()
         self.color = color
         self.transparent = transparent
         self.MOUSECONSTANT = pygame.MOUSEBUTTONUP
+        self.fon = False
 
     def mainloop(self):
+        self.running = True
         mouse_sprite = SpriteMouseLocation()
         self.draw_all()
         pygame.display.flip()
@@ -80,7 +80,7 @@ class UMenu:
                 self.screen.fill(self.color)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
+                    sys.exit()
                 elif event.type == pygame.MOUSEMOTION:
                     yes_flag = True
                     mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
@@ -91,6 +91,8 @@ class UMenu:
                         mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
                         for i in self.all_sprites:
                             i.click_check(mouse_sprite)
+            if self.fon:
+                self.screen.blit(pygame.transform.scale(self.fon, (self.rect.w, self.rect.h)), (0, 0))
             self.all_sprites.draw(self.screen)
             pygame.display.flip()
 
@@ -108,6 +110,9 @@ class UMenu:
 
     def changeMouseConstantToClick(self, const):
         self.MOUSECONSTANT = const
+
+    def setFon(self, image):
+        self.fon = image
 
 
 class ULevelsPlace(UWidget):
@@ -138,22 +143,20 @@ class ULevelsPlace(UWidget):
                 if len(self.levels) > count:
                     image_lvl = self.levels[count][0]
                     lvl_name = self.levels[count][1]
-                    pygame.draw.rect(self.image, pygame.Color('red'), (10 * j + part_x * (j - 1),
-                                                                       10 + (i * self.rect.h + 10) // self.cols - 10,
-                                                                       part_x,
-                                                                       (self.rect.h - 10) // self.cols),
-                                     border_radius=20)
+                    self.image.blit(pygame.transform.scale(load_image('../ui_images/BigPurple.png'),
+                                                           (part_x, (self.rect.h - 10) // self.cols)),
+                                    ((10 * j + part_x * (j - 1),10 + (i * self.rect.h + 10) // self.cols - 10)))
                     cookie_img = load_image(r'..\images\cookie.png')
                     cookie_img = pygame.transform.scale(cookie_img, (part_x, (self.rect.h - 100) // self.cols))
                     self.image.blit(cookie_img,
                                     (10 * j + part_x * (j - 1),
                                      10 + (i * self.rect.h + 10) // self.cols))
                     image_lvl = pygame.transform.scale(image_lvl,
-                                                       (part_x,
-                                                        (self.rect.h - 100) // self.cols))
+                                                       (part_x // 2,
+                                                        (self.rect.h - 100) // self.cols // 2))
                     self.image.blit(image_lvl,
-                                    (10 * j + part_x * (j - 1),
-                                     10 + (i * self.rect.h + 10) // self.cols))
+                                    (10 * j + part_x * (j - 1) + image_lvl.get_width() // 2,
+                                     10 + (i * self.rect.h + 10) // self.cols + image_lvl.get_height() // 2))
 
                     font = pygame.font.Font(pygame.font.match_font('calibri'), 20)
                     text_pg = font.render(f'{lvl_name}', True, (0, 0, 0))
@@ -180,7 +183,7 @@ class UMusicButton(UWidget):
         self.music_is = False
 
     def draw(self, color='black'):
-        self.image = pygame.transform.scale(load_image(r'..\images\music.png', -1), (100, 100))
+        self.image = pygame.transform.scale(load_image(r'..\ui_images\ButtonsStyle10_05.png'), (100, 100))
         self.rect = self.image.get_rect()
         self.rect.x = 10
         self.rect.y = self.menu.rect.h - self.rect.h - 10
@@ -205,7 +208,7 @@ class UBackButton(UWidget):
         self.gen_menu = gen_menu
 
     def draw(self, color='black'):
-        self.image = pygame.transform.scale(load_image(r'..\images\back.png', -1), (self.pos[2], self.pos[3]))
+        self.image = pygame.transform.scale(load_image(r'..\ui_images\ButtonsStyle1_04.png', -1), (self.pos[2], self.pos[3]))
         self.rect = self.image.get_rect()
         pygame.draw.rect(self.image, 'black', self.pos)
         self.rect.x = self.pos[0]
@@ -220,13 +223,17 @@ class UPauseMenu(UWidget):
     def __init__(self, menu):
         super(UPauseMenu, self).__init__(menu)
         self.buttons = list()
+        self.fon = False
 
     def draw(self):
-        self.image = pygame.Surface((300, 100 * len(self.buttons) + 100), pygame.SRCALPHA)
+        if self.fon:
+            self.image = load_image('../ui_images/BigBlue.png')
+        else:
+            self.image = pygame.Surface((300, 100 * len(self.buttons) + 100), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         self.rect.x = self.menu.rect.w // 2 - self.rect.w // 2
         self.rect.y = self.menu.rect.h // 2 - self.rect.h // 2
-        pygame.draw.rect(self.image, (255, 200, 200), (self.menu.rect.x // 2, self.menu.rect.y // 2, 300, 100 * len(self.buttons) + 100), border_radius=20)
+        # pygame.draw.rect(self.image, (255, 200, 200), (self.menu.rect.x // 2, self.menu.rect.y // 2, 300, 100 * len(self.buttons) + 100), border_radius=20)
 
     def addButton(self, text, func):
         btn = UButton(self.menu, func, text, len(self.buttons))
@@ -242,11 +249,12 @@ class UPauseMenu(UWidget):
 class UPauseButton(pygame.sprite.Sprite):
     def __init__(self, group, gen_menu, screen):
         super(UPauseButton, self).__init__(group)
-        self.image = pygame.transform.scale(load_image(r'..\images\pause.png'), (50, 50))
+        self.image = pygame.transform.scale(load_image(r'..\ui_images\ButtonsStyle10_02.png'), (100, 100))
         self.rect = self.image.get_rect()
         self.gen_menu = gen_menu
         self.screen = screen
         self.buttons = list()
+        self.menu = UMenu(self.screen, transparent=True)
 
     def click_check(self, pos):
         if pygame.sprite.collide_rect(pos, self):
@@ -254,13 +262,12 @@ class UPauseButton(pygame.sprite.Sprite):
             return True
 
     def go_to_pause(self):
-        menu = UMenu(self.screen, transparent=True)
-        UBackButton(menu, (600, 400, 100, 100), self.gen_menu.mainloop)
-        ps_menu = UPauseMenu(menu)
+        UBackButton(self.menu, (600, 400, 100, 100), self.gen_menu.mainloop)
+        ps_menu = UPauseMenu(self.menu)
         for text, func in self.buttons:
             ps_menu.addButton(text, func)
         pygame.mouse.set_visible(True)
-        menu.mainloop()
+        self.menu.mainloop()
 
     def addButton(self, text, func):
         self.buttons.append((text, func))
@@ -273,15 +280,15 @@ class UFinalWindow(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.buttons = list()
         self.screen = screen
+        self.menu = UMenu(self.screen, color='gray')
 
     def addButton(self, text, func):
         self.buttons.append((text, func))
 
     def go(self):
-        menu = UMenu(self.screen, color='gray')
-        ps_menu = UPauseMenu(menu)
+        ps_menu = UPauseMenu(self.menu)
         for text, func in self.buttons:
             ps_menu.addButton(text, func)
         pygame.mouse.set_visible(True)
-        menu.changeMouseConstantToClick(pygame.MOUSEBUTTONDOWN)
-        menu.mainloop()
+        self.menu.changeMouseConstantToClick(pygame.MOUSEBUTTONDOWN)
+        self.menu.mainloop()
