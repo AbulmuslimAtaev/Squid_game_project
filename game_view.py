@@ -5,14 +5,44 @@ from itertools import cycle
 
 import pygame
 from pillow_part import pic2text
+from pygame.sprite import *
+from UT import *
+from test_menu import main
 
 size = width, height = 700, 500
 screen = pygame.display.set_mode(size)
 screen.fill(pygame.Color('white'))
 
 
+class Sprite_Mouse_Location(Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = pygame.Rect(0, 0, 1, 1)
+
+
+def go_to_pause():
+    menu = UMenu(screen)
+    back_btn = UBackButton(menu, (600, 400, 100, 100), main)
+    ps_menu = UPauseMenu(menu)
+    ps_menu.addButton('Resume', menu.close)
+    ps_menu.addButton('Quit', pygame.quit)
+    menu.mainloop(False)
+
+
+class PauseButton(pygame.sprite.Sprite):
+    def __init__(self):
+        super(PauseButton, self).__init__(all_sprites)
+        self.image = pygame.transform.scale(load_image('pause.png'), (50, 50))
+        self.rect = self.image.get_rect()
+
+    def click_check(self, pos):
+        if pygame.sprite.collide_rect(pos, self):
+            go_to_pause()
+            return True
+
+
 def load_image(name, colorkey=None):
-    fullname = os.path.join('images', name)
+    fullname = os.path.join('../../Desktop/banjo/PROJECT2_SQUID_DALGONA_CANDY/images', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
@@ -48,8 +78,8 @@ class Igla(pygame.sprite.Sprite):
         self.image = Igla.images[randint(4, 12)]
         # self.image = Igla.images[next(self.num)]
 
-class Form(pygame.sprite.Sprite):
 
+class Form(pygame.sprite.Sprite):
     def __init__(self, image_name):
         super().__init__(all_sprites)
         self.image = load_image(f"{image_name}.png", -1)
@@ -75,7 +105,7 @@ class Cookie(pygame.sprite.Sprite):
 
 class Spot(pygame.sprite.Sprite):
     def __init__(self, pos):
-        super().__init__(all_sprites)
+        super().__init__()
         self.image = pygame.Surface((7, 7), pygame.SRCALPHA)
         pygame.draw.circle(self.image, pygame.Color("grey"), (4, 4), 3)
         self.rect = self.image.get_rect()
@@ -83,9 +113,6 @@ class Spot(pygame.sprite.Sprite):
         self.rect.y = pos[1] - 2
         if not pygame.sprite.collide_mask(self, star_form):
             print("Проиграл")
-
-
-all_sprites = pygame.sprite.Group()
 
 
 class Check_Form(pygame.sprite.Sprite):
@@ -110,8 +137,14 @@ def draw_update():
     return True
 
 
-def game_run(image_name):
+def game_run(image_name, menu):
+    def close_menu():
+        menu.close()
+    global gen_menu
+    gen_menu = menu
     MYEVENTTYPE = pygame.USEREVENT + 1
+    global all_sprites
+    all_sprites = pygame.sprite.Group()
     global drawed_check
     drawed_check = pygame.sprite.Group()
     values = pic2text(image_name)
@@ -127,37 +160,46 @@ def game_run(image_name):
     cookie = Cookie()
     global star_form
     star_form = Form(image_name)
+    pause = PauseButton()
     igla, flag = Igla(), False
     pygame.display.set_caption("PySquid")
     pygame.time.set_timer(MYEVENTTYPE, 50)
+    mouse_sprite = Sprite_Mouse_Location()
+    pause_flag = False
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                pygame.quit()
             if event.type == MYEVENTTYPE:
                 flag = True
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
+                pause_flag = pause.click_check(mouse_sprite)
+
         pos = pygame.mouse.get_pos()
         press = pygame.mouse.get_pressed()
+
         if press[0]:
-            if flag:
-                igla.turn()
-                flag = False
-            spot = Spot(pos)
-            drawed.add(spot)
-            spot.update()
-            if draw_update():
-                running = False
-        all_sprites.update()
+            if not pause_flag:
+                if flag:
+                    igla.turn()
+                    flag = False
+                spot = Spot(pos)
+                drawed.add(spot)
+                if draw_update():
+                    running = False
+
         screen.fill(pygame.Color('grey'))
         all_sprites.draw(screen)
-        drawed_check.draw(screen)
+        drawed.draw(screen)
+
         if pygame.mouse.get_focused():
             pygame.mouse.set_visible(False)
             igla.move(pos)
         pygame.display.flip()
     if not running:
         print("Победа")
-    pygame.quit()
+    close_menu()
 
 
 if __name__ == '__main__':
