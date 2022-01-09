@@ -2,35 +2,12 @@ import pygame
 from random import randint
 import sys
 from itertools import cycle
-from UT import UMenu, UBackButton, UPauseMenu
+from UT import UMenu, UPauseButton, UFinalWindow
 from support_funcs import SpriteMouseLocation, pic2text, load_image
 
 size = (700, 500)
 screen = pygame.display.set_mode(size)
 MYEVENTTYPE = pygame.USEREVENT + 1
-
-
-class PauseButton(pygame.sprite.Sprite):
-    def __init__(self, group, gen_menu, screen):
-        super(PauseButton, self).__init__(group)
-        self.image = pygame.transform.scale(load_image(r'..\images\pause.png'), (50, 50))
-        self.rect = self.image.get_rect()
-        self.gen_menu = gen_menu
-        self.screen = screen
-
-    def click_check(self, pos):
-        if pygame.sprite.collide_rect(pos, self):
-            self.go_to_pause()
-            return True
-
-    def go_to_pause(self):
-        menu = UMenu(self.screen, transparent=True)
-        UBackButton(menu, (600, 400, 100, 100), self.gen_menu.mainloop)
-        ps_menu = UPauseMenu(menu)
-        ps_menu.addButton('Resume', menu.close)
-        ps_menu.addButton('Quit', pygame.quit)
-        pygame.mouse.set_visible(True)
-        menu.mainloop()
 
 
 class Igla(pygame.sprite.Sprite):
@@ -78,15 +55,17 @@ class Cookie(pygame.sprite.Sprite):
 
 
 class Spot(pygame.sprite.Sprite):
-    def __init__(self, pos, group, sprite_to_check):
+    def __init__(self, pos, group):
         super().__init__(group)
         self.image = pygame.Surface((7, 7), pygame.SRCALPHA)
         pygame.draw.circle(self.image, pygame.Color("grey"), (4, 4), 3)
         self.rect = self.image.get_rect()
         self.rect.x = pos[0] - 2
         self.rect.y = pos[1] - 2
+
+    def check_lose(self, sprite_to_check):
         if not pygame.sprite.collide_mask(self, sprite_to_check):
-            print("Проиграл")
+            return True
 
 
 class CheckForm(pygame.sprite.Sprite):
@@ -113,22 +92,22 @@ def draw_update(in_group, group_to_check):
 def game_run(image_name, menu=None):
     pygame.display.set_caption("PySquid")
     pygame.time.set_timer(MYEVENTTYPE, 50)
-
     all_sprites = pygame.sprite.Group()
     drawed_check = pygame.sprite.Group()
     drawed = pygame.sprite.Group()
     igla_sprites = pygame.sprite.Group()
-
     values = pic2text(image_name)
     for i in values:
         CheckForm(i, drawed_check, size)
-
     Cookie(all_sprites, size)
     form = Form(image_name, all_sprites, size)
-    pause = PauseButton(all_sprites, menu, screen)
+
+    pause = UPauseButton(all_sprites, menu, screen)
+    pause.addButton('Resume', menu.close)
+    pause.addButton('Quit', pygame.quit)
+
     igla = Igla(igla_sprites, size)
     mouse_sprite = SpriteMouseLocation()
-
     igla_flag = False
     running = True
     pause_flag = False
@@ -142,7 +121,6 @@ def game_run(image_name, menu=None):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
                 pause_flag = pause.click_check(mouse_sprite)
-
         press = pygame.mouse.get_pressed()
         pos = pygame.mouse.get_pos()
         if press[0]:
@@ -150,28 +128,32 @@ def game_run(image_name, menu=None):
                 if igla_flag:
                     igla.turn()
                     igla_flag = False
-                Spot(pos, drawed, form)
+                spot = Spot(pos, drawed)
+                if spot.check_lose(form):
+                    running = False
                 if draw_update(drawed_check, drawed):
                     running = False
-
         screen.fill(pygame.Color('grey'))
         all_sprites.draw(screen)
         drawed.draw(screen)
         igla_sprites.draw(screen)
-
         if pygame.mouse.get_focused():
             pygame.mouse.set_visible(False)
             igla.move(pos)
 
         pygame.display.flip()
     if not running:
-        print("Победа")
-
-    if menu:
-        menu.close()
-    else:
-        sys.exit()
+        final_win = UFinalWindow(all_sprites, screen)
+        final_win.addButton('Back', menu.mainloop)
+        final_win.addButton('Quit', sys.exit)
+        final_win.go()
+    #
+    # if menu:
+    #     pygame.mouse.set_visible(True)
+    #     menu.close()
+    # else:
+    #     sys.exit()
 
 
 if __name__ == '__main__':
-    game_run(r'cloud', None)
+    game_run(r'cloud', UMenu)

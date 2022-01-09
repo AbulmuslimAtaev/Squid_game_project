@@ -6,10 +6,10 @@ import sys
 
 def load_image(path, colorkey=None):
     fullname = os.path.join(path)
-    # if not os.path.isfile(fullname):
-    #     print(f"Файл с изображением '{path}' не найден")
-    #     sys.exit()
-    image = pygame.image.load(path)
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{path}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname)
     if colorkey is not None:
         image = image.convert()
         if colorkey == -1:
