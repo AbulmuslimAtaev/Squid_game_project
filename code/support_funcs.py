@@ -9,7 +9,7 @@ def load_image(path, colorkey=None):
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
-    image = pygame.image.load(fullname)
+    image = pygame.image.load(path)
     if colorkey is not None:
         image = image.convert()
         if colorkey == -1:
@@ -22,7 +22,6 @@ def load_image(path, colorkey=None):
 
 def pic2text(imagename):
     im = Image.open(f'../images/{imagename}.png')
-    pixels = im.load()
     _WIDTH = 100
     _HEIGHT = 100
     resized_img = im.resize((_WIDTH, _HEIGHT), Image.ANTIALIAS)

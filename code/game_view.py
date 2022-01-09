@@ -5,17 +5,18 @@ from itertools import cycle
 from UT import UMenu, UBackButton, UPauseMenu
 from support_funcs import SpriteMouseLocation, pic2text, load_image
 
-size = width, height = 700, 500
+size = (700, 500)
 screen = pygame.display.set_mode(size)
-screen.fill(pygame.Color('white'))
+MYEVENTTYPE = pygame.USEREVENT + 1
 
 
 class PauseButton(pygame.sprite.Sprite):
-    def __init__(self, group, gen_menu):
+    def __init__(self, group, gen_menu, screen):
         super(PauseButton, self).__init__(group)
         self.image = pygame.transform.scale(load_image(r'..\images\pause.png'), (50, 50))
         self.rect = self.image.get_rect()
         self.gen_menu = gen_menu
+        self.screen = screen
 
     def click_check(self, pos):
         if pygame.sprite.collide_rect(pos, self):
@@ -23,10 +24,10 @@ class PauseButton(pygame.sprite.Sprite):
             return True
 
     def go_to_pause(self):
-        menu = UMenu(screen)
-        back_btn = UBackButton(menu, (600, 400, 100, 100))
+        menu = UMenu(self.screen)
+        UBackButton(menu, (600, 400, 100, 100), self.gen_menu.mainloop)
         ps_menu = UPauseMenu(menu)
-        ps_menu.addButton('Resume', self.gen_menu.mainloop)
+        ps_menu.addButton('Resume', menu.close)
         ps_menu.addButton('Quit', pygame.quit)
         menu.mainloop(False)
 
@@ -34,15 +35,15 @@ class PauseButton(pygame.sprite.Sprite):
 class Igla(pygame.sprite.Sprite):
     images = [load_image(fr"..\images\animation\pic{i}.png", None) for i in range(0, 17)]
 
-    def __init__(self, group):
+    def __init__(self, group, size):
         super().__init__(group)
         self.num = cycle(list(range(0, 17)) + (list(range(16, -1, -1))))
         for i in range(8):
             next(self.num)
         self.image = Igla.images[next(self.num)]
         self.rect = self.image.get_rect()
-        self.rect.x = (width - self.rect.w) // 2
-        self.rect.y = (height - self.rect.h) // 2
+        self.rect.x = (size[0] - self.rect.w) // 2
+        self.rect.y = (size[1] - self.rect.h) // 2
 
     def move(self, pos):
         self.rect.x = pos[0]
@@ -53,26 +54,26 @@ class Igla(pygame.sprite.Sprite):
 
 
 class Form(pygame.sprite.Sprite):
-    def __init__(self, image_name, group):
+    def __init__(self, image_name, group, size):
         super().__init__(group)
         self.image = load_image(f"{image_name}.png", -1)
         self.image = pygame.transform.scale(self.image, (200, 200))
         self.rect = self.image.get_rect()
-        self.rect.x = (width - self.rect.w) // 2
-        self.rect.y = (height - self.rect.h) // 2
+        self.rect.x = (size[0] - self.rect.w) // 2
+        self.rect.y = (size[1] - self.rect.h) // 2
         self.mask = pygame.mask.from_surface(self.image)
 
 
 class Cookie(pygame.sprite.Sprite):
-    image = load_image(r"..\images\cookie.png")
+    image = load_image(r"../images/cookie.png")
 
-    def __init__(self, group):
+    def __init__(self, group, size):
         super().__init__(group)
         self.image = Cookie.image
         self.image = pygame.transform.scale(self.image, (300, 300))
         self.rect = self.image.get_rect()
-        self.rect.x = (width - self.rect.w) // 2
-        self.rect.y = (height - self.rect.h) // 2
+        self.rect.x = (size[0] - self.rect.w) // 2
+        self.rect.y = (size[1] - self.rect.h) // 2
 
 
 class Spot(pygame.sprite.Sprite):
@@ -87,13 +88,13 @@ class Spot(pygame.sprite.Sprite):
             print("Проиграл")
 
 
-class checkForm(pygame.sprite.Sprite):
-    def __init__(self, pos, group):
+class CheckForm(pygame.sprite.Sprite):
+    def __init__(self, pos, group, size):
         super().__init__(group)
         self.image = pygame.Surface((5, 5), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
-        self.rect.x = (width - 200) // 2 + pos[0] * 2 - 1
-        self.rect.y = (height - 200) // 2 + pos[1] * 2 - 1
+        self.rect.x = (size[0] - 200) // 2 + pos[0] * 2 - 1
+        self.rect.y = (size[1] - 200) // 2 + pos[1] * 2 - 1
 
 
 def draw_update(in_group, group_to_check):
@@ -110,7 +111,6 @@ def draw_update(in_group, group_to_check):
 
 def game_run(image_name, menu=None):
     pygame.display.set_caption("PySquid")
-    MYEVENTTYPE = pygame.USEREVENT + 1
     pygame.time.set_timer(MYEVENTTYPE, 50)
 
     all_sprites = pygame.sprite.Group()
@@ -120,12 +120,12 @@ def game_run(image_name, menu=None):
 
     values = pic2text(image_name)
     for i in values:
-        checkForm(i, drawed_check)
+        CheckForm(i, drawed_check, size)
 
-    Cookie(all_sprites)
-    form = Form(image_name, all_sprites)
-    pause = PauseButton(all_sprites, menu)
-    igla = Igla(igla_sprites)
+    Cookie(all_sprites, size)
+    form = Form(image_name, all_sprites, size)
+    pause = PauseButton(all_sprites, menu, screen)
+    igla = Igla(igla_sprites, size)
     mouse_sprite = SpriteMouseLocation()
 
     igla_flag = False
@@ -173,4 +173,4 @@ def game_run(image_name, menu=None):
 
 
 if __name__ == '__main__':
-    game_run(r'..\images\star4', None)
+    game_run(r'cloud', None)
