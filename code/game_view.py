@@ -29,6 +29,7 @@ class PauseButton(pygame.sprite.Sprite):
         ps_menu = UPauseMenu(menu)
         ps_menu.addButton('Resume', menu.close)
         ps_menu.addButton('Quit', pygame.quit)
+        pygame.mouse.set_visible(True)
         menu.mainloop(False)
 
 
