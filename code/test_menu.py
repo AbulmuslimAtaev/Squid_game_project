@@ -1,5 +1,7 @@
-import game_view
-from UT import *
+import pygame
+from game_view import game_run
+from support_funcs import load_image
+from UT import UMenu, ULevelsPlace, UBackButton, UButton, UMusicButton
 
 
 def go_to_levels():
@@ -21,7 +23,8 @@ def go_to_levels():
 
 
 def start_the_game(lvl_name, menu):
-    game_view.game_run(lvl_name, menu)
+    game_run(lvl_name, menu)
+
 
 def main():
     pygame.init()
@@ -35,4 +38,5 @@ def main():
 
 
 if __name__ == '__main__':
+    print('hi')
     main()

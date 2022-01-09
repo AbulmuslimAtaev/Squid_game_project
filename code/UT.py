@@ -1,22 +1,5 @@
-import os
-import sys
+from support_funcs import SpriteMouseLocation, load_image
 import pygame
-from pygame.sprite import *
-
-def load_image(name, colorkey=None):
-    fullname = os.path.join('../../Desktop/banjo/PROJECT2_SQUID_DALGONA_CANDY/images', name)
-    if not os.path.isfile(fullname):
-        print(f"Файл с изображением '{fullname}' не найден")
-        sys.exit()
-    image = pygame.image.load(fullname)
-    if colorkey is not None:
-        image = image.convert()
-        if colorkey == -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey)
-    else:
-        image = image.convert_alpha()
-    return image
 
 
 class UWidget(pygame.sprite.Sprite):
@@ -76,12 +59,6 @@ class UButton(UWidget):
             self.func()
 
 
-class Sprite_Mouse_Location(Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.rect = pygame.Rect(0, 0, 1, 1)
-
-
 class UMenu:
     def __init__(self, screen, general=True):
         self.screen = screen
@@ -92,7 +69,7 @@ class UMenu:
         self.wids = list()
 
     def mainloop(self, color='blue'):
-        mouse_sprite = Sprite_Mouse_Location()
+        mouse_sprite = SpriteMouseLocation()
         self.draw_all()
         pygame.display.flip()
         while self.running:
@@ -158,7 +135,7 @@ class ULevelsPlace(UWidget):
                                                                        part_x,
                                                                        (self.rect.h - 10) // (self.cols)),
                                      border_radius=20)
-                    cookie_img = load_image('universla_cookie.png')
+                    cookie_img = load_image('cookie.png')
                     cookie_img = pygame.transform.scale(cookie_img, (part_x, (self.rect.h - 100) // (self.cols)))
                     self.image.blit(cookie_img,
                                     (10 * j + part_x * (j - 1),
@@ -196,7 +173,7 @@ class UMusicButton(UWidget):
         self.music_is = False
 
     def draw(self, color='black'):
-        self.image = pygame.transform.scale(load_image('music.png', -1), (100, 100))
+        self.image = pygame.transform.scale(load_image(r'..\images\music.png', -1), (100, 100))
         self.rect = self.image.get_rect()
         self.rect.x = 10
         self.rect.y = self.menu.rect.h - self.rect.h - 10
@@ -221,7 +198,7 @@ class UBackButton(UWidget):
         self.gen_menu = gen_menu
 
     def draw(self, color='black'):
-        self.image = pygame.transform.scale(load_image('back.png', -1), (self.pos[2], self.pos[3]))
+        self.image = pygame.transform.scale(load_image(r'..\images\back.png', -1), (self.pos[2], self.pos[3]))
         self.rect = self.image.get_rect()
         pygame.draw.rect(self.image, 'black', self.pos)
         self.rect.x = self.pos[0]
@@ -253,4 +230,4 @@ class UPauseMenu(UWidget):
         try:
             print(max(self.buttons, key=lambda x: x.rect.x))
         except Exception:
-            print('похую')
+            print('#')
