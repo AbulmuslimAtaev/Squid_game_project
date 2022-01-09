@@ -59,21 +59,23 @@ class UButton(UWidget):
 
 
 class UMenu:
-    def __init__(self, screen, general=True):
+    def __init__(self, screen, general=True, color='blue', transparent=False):
         self.screen = screen
         self.general = general
         self.all_sprites = pygame.sprite.Group()
         self.rect = screen.get_rect()
         self.running = True
         self.wids = list()
+        self.color = color
+        self.transparent = transparent
 
-    def mainloop(self, color='blue'):
+    def mainloop(self):
         mouse_sprite = SpriteMouseLocation()
         self.draw_all()
         pygame.display.flip()
         while self.running:
-            if color:
-                self.screen.fill(color)
+            if not self.transparent:
+                self.screen.fill(self.color)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()

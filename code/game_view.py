@@ -24,13 +24,13 @@ class PauseButton(pygame.sprite.Sprite):
             return True
 
     def go_to_pause(self):
-        menu = UMenu(self.screen)
+        menu = UMenu(self.screen, transparent=True)
         UBackButton(menu, (600, 400, 100, 100), self.gen_menu.mainloop)
         ps_menu = UPauseMenu(menu)
         ps_menu.addButton('Resume', menu.close)
         ps_menu.addButton('Quit', pygame.quit)
         pygame.mouse.set_visible(True)
-        menu.mainloop(False)
+        menu.mainloop()
 
 
 class Igla(pygame.sprite.Sprite):
