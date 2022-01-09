@@ -57,7 +57,7 @@ class Igla(pygame.sprite.Sprite):
 class Form(pygame.sprite.Sprite):
     def __init__(self, image_name, group, size):
         super().__init__(group)
-        self.image = load_image(f"{image_name}.png", -1)
+        self.image = load_image(f"../images/{image_name}.png", -1)
         self.image = pygame.transform.scale(self.image, (200, 200))
         self.rect = self.image.get_rect()
         self.rect.x = (size[0] - self.rect.w) // 2
