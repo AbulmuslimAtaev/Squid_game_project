@@ -9,7 +9,7 @@ from pillow_part import pic2text
 size = width, height = 700, 500
 screen = pygame.display.set_mode(size)
 screen.fill(pygame.Color('white'))
-IMAGE_NAME = "cloud"
+IMAGE_NAME = "star4"
 
 
 def load_image(name, colorkey=None):
@@ -144,7 +144,6 @@ while running:
         spot.update()
         if draw_update():
             running = False
-    all_sprites.update()
     screen.fill(pygame.Color('grey'))
     all_sprites.draw(screen)
     drawed_check.draw(screen)
