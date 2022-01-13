@@ -6,7 +6,7 @@ from UT import UMenu, ULevelsPlace, UBackButton, UButton, UMusicButton
 
 def go_to_levels():
     screen2 = pygame.display.set_mode((700, 500))
-    menu_lvl = UMenu(screen2, color='gray', transparent=False)
+    menu_lvl = UMenu(screen2, color='Purple', transparent=True)
     levels_place = ULevelsPlace(menu_lvl, start_the_game)
     levels_place.change_size(700, 450)
     levels_place.addLevel(load_image(r'..\images\star4.png', -1), 'star4')

@@ -37,7 +37,7 @@ class UButton(UWidget):
 
     def draw(self, image_name='BigBlue.png'):
         if self.text:
-            font = pygame.font.Font(pygame.font.match_font('arial'), 50)
+            font = pygame.font.Font(pygame.font.match_font('Arial'), 50)
             text_pg = font.render(self.text, True, (255, 255, 255))
             self.image = pygame.transform.scale(load_image('../ui_images/' + image_name), (text_pg.get_width() + 40, text_pg.get_height() + 20))
 
@@ -58,7 +58,7 @@ class UButton(UWidget):
 
 
 class UMenu:
-    def __init__(self, screen, general=True, color='blue', transparent=False):
+    def __init__(self, screen, general=True, color="purple", transparent=False):
         self.screen = screen
         self.general = general
         self.all_sprites = pygame.sprite.Group()
@@ -263,6 +263,7 @@ class UPauseButton(pygame.sprite.Sprite):
 
     def go_to_pause(self):
         UBackButton(self.menu, (600, 400, 100, 100), self.gen_menu.mainloop)
+        pygame.mixer.Channel(0).pause()
         ps_menu = UPauseMenu(self.menu)
         for text, func in self.buttons:
             ps_menu.addButton(text, func)
