@@ -78,10 +78,9 @@ class CheckForm(pygame.sprite.Sprite):
         super().__init__(group)
         self.image = pygame.Surface((5, 5), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
-        self.image.fill((0, 0, 0))
-        self.rect.x = round((size[0] - 200) // 2 + pos[0]) - 1
-        self.rect.y = round((size[1] - 200) // 2 + pos[1]) - 1
-        print(1)
+        # self.image.fill((0, 0, 0))
+        self.rect.x = (size[0] - 200) // 2 + pos[0] * 2 - 1
+        self.rect.y = (size[1] - 200) // 2 + pos[1] * 2 - 1
 
 
 def draw_update(in_group, group_to_check):
@@ -182,9 +181,9 @@ def game_run(image_name, menu=None):
         final_win.addButton('Quit', sys.exit)
         if win_flag:
             print("Выиграл")
-            final_win.menu.setFon(load_image('../ui_images/BigBlue.png'))
+            final_win.menu.setFon(load_image('../ui_images/BigPurple.png'))
         else:
-            final_win.menu.setFon(load_image('../ui_images/BigGray.png'))
+            final_win.menu.setFon(load_image('../ui_images/BigPurple.png'))
             print("Проиграл")
         final_win.go()
 

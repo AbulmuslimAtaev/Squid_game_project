@@ -35,7 +35,7 @@ class UButton(UWidget):
         self.func = func
         self.num = num
 
-    def draw(self, image_name='BigBlue.png'):
+    def draw(self, image_name='BigPurple.png'):
         if self.text:
             font = pygame.font.Font(pygame.font.match_font('Arial'), 50)
             text_pg = font.render(self.text, True, (255, 255, 255))
@@ -227,7 +227,7 @@ class UPauseMenu(UWidget):
 
     def draw(self):
         if self.fon:
-            self.image = load_image('../ui_images/BigBlue.png')
+            self.image = load_image('../ui_images/BigPurple.png')
         else:
             self.image = pygame.Surface((300, 100 * len(self.buttons) + 100), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
