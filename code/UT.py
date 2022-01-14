@@ -199,12 +199,16 @@ class UMusicButton(UWidget):
     def click_check(self, pos):
         if pygame.sprite.collide_rect(pos, self):
             self.music_is = not self.music_is
+            self.do_music()
         self.music_stat_draw()
 
     def music_stat_draw(self):
         if self.music_is:
-            self.funcs[1]()
             pygame.draw.line(self.image, pygame.Color('red'), (100, 0), (0, 100), 10)
+
+    def do_music(self):
+        if self.music_is:
+            self.funcs[1]()
         else:
             self.funcs[0]()
 

@@ -105,16 +105,19 @@ def game_run(image_name, menu=None):
     pygame.mixer.Channel(0).set_volume(0.4)
     pygame.mixer.Channel(0).play(sound1, loops=-1)
     pygame.mixer.Channel(0).pause()
+
     pygame.time.set_timer(MYEVENTTYPE, 50)
     MYEVENTTYPE2 = pygame.USEREVENT + 1
     pygame.time.set_timer(MYEVENTTYPE2, 10)
     all_sprites = pygame.sprite.Group()
+
     drawed_check = pygame.sprite.Group()
-    drawed = pygame.sprite.Group()
-    igla_sprites = pygame.sprite.Group()
     values = pic2text(image_name)
     for i in values[0]:
         CheckForm(i, drawed_check, size)
+
+    drawed = pygame.sprite.Group()
+    igla_sprites = pygame.sprite.Group()
     Cookie(all_sprites, size)
     form = Form(values[1], image_name, all_sprites, size)
     menu.transparent = False
