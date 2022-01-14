@@ -84,15 +84,17 @@ class CheckForm(pygame.sprite.Sprite):
 
 
 def draw_update(in_group, group_to_check):
+    count = 0
     fg = True
     for i in in_group.sprites():
         if not pygame.sprite.spritecollideany(i, group_to_check):
             fg = False
+            count += 1
         else:
             i.kill()
     if not fg:
-        return False
-    return True
+        return False, count
+    return True, 0
 
 
 def game_run(image_name, menu=None):
@@ -105,19 +107,18 @@ def game_run(image_name, menu=None):
     pygame.mixer.Channel(0).set_volume(0.4)
     pygame.mixer.Channel(0).play(sound1, loops=-1)
     pygame.mixer.Channel(0).pause()
-
     pygame.time.set_timer(MYEVENTTYPE, 50)
     MYEVENTTYPE2 = pygame.USEREVENT + 1
     pygame.time.set_timer(MYEVENTTYPE2, 10)
     all_sprites = pygame.sprite.Group()
-
     drawed_check = pygame.sprite.Group()
-    values = pic2text(image_name)
-    for i in values[0]:
-        CheckForm(i, drawed_check, size)
-
     drawed = pygame.sprite.Group()
     igla_sprites = pygame.sprite.Group()
+    values = pic2text(image_name)
+    count_of_values = 0
+    for i in values[0]:
+        CheckForm(i, drawed_check, size)
+        count_of_values += 1
     Cookie(all_sprites, size)
     form = Form(values[1], image_name, all_sprites, size)
     menu.transparent = False
@@ -134,6 +135,7 @@ def game_run(image_name, menu=None):
     win_flag = False
     time = 0.001
     font = pygame.font.SysFont('Consolas', 30)
+    flag = False, count_of_values
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -159,9 +161,11 @@ def game_run(image_name, menu=None):
                 if spot.check_lose(form):
                     running = False
                     win_flag = False
-                if draw_update(drawed_check, drawed):
+                flag = draw_update(drawed_check, drawed)
+                if flag[0]:
                     running = False
                     win_flag = True
+
         screen.fill(pygame.Color('grey'))
         all_sprites.draw(screen)
         drawed.draw(screen)
@@ -174,7 +178,10 @@ def game_run(image_name, menu=None):
         if len(str(round(time))) <= 1:
             time_str = "0" + time_str
         screen.blit(font.render(time_str,
-                                True, (0, 0, 0)), (size[0] * 3 // 4, size[1] // 8))
+                                True, (0, 0, 0)), (size[0] * 3 // 4, size[1] // 8 * 7))
+        process = 100 - flag[1] * 100 // count_of_values
+        screen.blit(font.render(f"{process}%",
+                                True, (0, 0, 0)), (size[0] * 2 // 4 - 15, size[1] // 10))
         pygame.display.flip()
     if not running:
         pygame.mixer.Channel(0).pause()

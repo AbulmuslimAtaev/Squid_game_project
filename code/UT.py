@@ -211,6 +211,7 @@ class UMusicButton(UWidget):
             self.funcs[1]()
         else:
             self.funcs[0]()
+            self.draw()
 
 
 class UBackButton(UWidget):
@@ -245,17 +246,10 @@ class UPauseMenu(UWidget):
         self.rect = self.image.get_rect()
         self.rect.x = self.menu.rect.w // 2 - self.rect.w // 2
         self.rect.y = self.menu.rect.h // 2 - self.rect.h // 2
-        # pygame.draw.rect(self.image, (255, 200, 200), (self.menu.rect.x // 2, self.menu.rect.y // 2, 300, 100 * len(self.buttons) + 100), border_radius=20)
 
     def addButton(self, text, func):
         btn = UButton(self.menu, func, text, len(self.buttons))
         self.buttons.append(btn)
-
-    # def update_max_text(self):
-    #     try:
-    #         print(max(self.buttons, key=lambda x: x.rect.x))
-    #     except Exception:
-    #         print('#')
 
 
 class UPauseButton(pygame.sprite.Sprite):

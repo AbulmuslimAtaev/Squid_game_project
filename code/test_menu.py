@@ -37,8 +37,9 @@ def main():
     sound2 = pygame.mixer.Sound('../sound/intro_music.wav')
     sound2.play()
     UButton(menu, go_to_levels, 'start', 0)
-    UMusicButton(menu, [sound2.play, sound2.stop])
-    UButton(menu, sys.exit, 'quit', 1)
+    global msc_btn
+    msc_btn = UMusicButton(menu, [sound2.play, sound2.stop])
+    UButton(menu, [sys.exit], 'quit', 1)
     pygame.display.flip()
     menu.mainloop()
 
