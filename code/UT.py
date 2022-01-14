@@ -54,7 +54,11 @@ class UButton(UWidget):
 
     def click_check(self, pos):
         if pygame.sprite.collide_rect(pos, self):
-            self.func()
+            if type(self.func) == list:
+                for i in self.func:
+                    i()
+            else:
+                self.func()
 
 
 class UMenu:
@@ -91,6 +95,8 @@ class UMenu:
                         mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
                         for i in self.all_sprites:
                             i.click_check(mouse_sprite)
+                        yes_flag = False
+            pygame.mouse.set_visible(True)
             if self.fon:
                 self.screen.blit(pygame.transform.scale(self.fon, (self.rect.w, self.rect.h)), (0, 0))
             self.all_sprites.draw(self.screen)
@@ -127,8 +133,8 @@ class ULevelsPlace(UWidget):
         self.height = self.menu.rect.h
         self.func = func
 
-    def addLevel(self, image, name):
-        self.levels.append((image, name))
+    def addLevel(self, image, text, name):
+        self.levels.append((image, name, text))
 
     def draw(self):
         self.image = pygame.Surface((self.width, self.height - 5), pygame.SRCALPHA)
@@ -143,11 +149,12 @@ class ULevelsPlace(UWidget):
                 if len(self.levels) > count:
                     image_lvl = self.levels[count][0]
                     lvl_name = self.levels[count][1]
-                    self.image.blit(pygame.transform.scale(load_image('../ui_images/BigPurple.png'),
+                    text = self.levels[count][2]
+                    self.image.blit(pygame.transform.scale(load_image('../ui_images/back_image.png', -1),
                                                            (part_x, (self.rect.h - 10) // self.cols)),
-                                    ((10 * j + part_x * (j - 1),10 + (i * self.rect.h + 10) // self.cols - 10)))
+                                    ((10 * j + part_x * (j - 1), 10 + (i * self.rect.h + 10) // self.cols - 10)))
                     cookie_img = load_image(r'..\images\cookie.png')
-                    cookie_img = pygame.transform.scale(cookie_img, (part_x, (self.rect.h - 100) // self.cols))
+                    cookie_img = pygame.transform.scale(cookie_img, (part_x, (self.rect.h - 120) // self.cols))
                     self.image.blit(cookie_img,
                                     (10 * j + part_x * (j - 1),
                                      10 + (i * self.rect.h + 10) // self.cols))
@@ -159,9 +166,9 @@ class ULevelsPlace(UWidget):
                                      10 + (i * self.rect.h + 10) // self.cols + image_lvl.get_height() // 2))
 
                     font = pygame.font.Font(pygame.font.match_font('calibri'), 20)
-                    text_pg = font.render(f'{lvl_name}', True, (0, 0, 0))
+                    text_pg = font.render(text, True, (255, 255, 255))
                     self.image.blit(text_pg, (10 + 10 * (j + 1) + part_x * (j - 1),
-                                              (((i + 1) * self.rect.h + 10) // self.cols) - text_pg.get_height()))
+                                              (((i + 1) * self.rect.h) // self.cols) - text_pg.get_height() - 5))
                     count += 1
 
     def click_check(self, pos):
@@ -170,7 +177,7 @@ class ULevelsPlace(UWidget):
             cell_y = (pos.rect.y - 10) // self.cell_size_y
             if cell_x < 0 or cell_x >= self.rows or cell_y < 0 or cell_y >= self.cols:
                 return
-            self.func('../images/' + self.levels[(cell_y * self.rows) + cell_x][1], self.menu)
+            self.func(self.levels[(cell_y * self.rows) + cell_x][1], self.menu)
 
     def change_size(self, width, height):
         self.width = width
@@ -229,7 +236,11 @@ class UBackButton(UWidget):
 
     def click_check(self, pos):
         if pygame.sprite.collide_rect(pos, self):
-            self.gen_menu()
+            if type(self.gen_menu) == list:
+                for i in self.gen_menu:
+                    i()
+            else:
+                self.gen_menu()
 
 
 class UPauseMenu(UWidget):
@@ -268,7 +279,7 @@ class UPauseButton(pygame.sprite.Sprite):
             return True
 
     def go_to_pause(self):
-        UBackButton(self.menu, (600, 400, 100, 100), self.gen_menu.mainloop)
+        UBackButton(self.menu, (600, 400, 100, 100), self.gen_menu)
         pygame.mixer.Channel(0).pause()
         ps_menu = UPauseMenu(self.menu)
         for text, func in self.buttons:
@@ -278,6 +289,9 @@ class UPauseButton(pygame.sprite.Sprite):
 
     def addButton(self, text, func):
         self.buttons.append((text, func))
+
+    def set_gen_menu(self, gen_menu):
+        self.gen_menu = gen_menu
 
 
 class UFinalWindow(pygame.sprite.Sprite):

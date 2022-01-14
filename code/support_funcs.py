@@ -3,6 +3,7 @@ import os
 import pygame
 import sys
 from random import randint as ran
+import sqlite3
 
 
 def load_image(path, colorkey=None, flag=True):
@@ -53,3 +54,14 @@ class SpriteMouseLocation(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.rect = pygame.Rect(0, 0, 1, 1)
+
+
+def get_levels():
+    con = sqlite3.connect('../data/database.sqlite')
+    cur = con.cursor()
+    data = cur.execute('SELECT * FROM Levels_rezult').fetchall()
+    con.close()
+    return data
+
+
+print(get_levels())

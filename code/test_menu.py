@@ -2,7 +2,7 @@ import sys
 
 import pygame
 from game_view import game_run
-from support_funcs import load_image
+from support_funcs import load_image, get_levels
 from UT import UMenu, ULevelsPlace, UBackButton, UButton, UMusicButton
 
 
@@ -11,21 +11,17 @@ def go_to_levels():
     menu_lvl = UMenu(screen2, color='Gray', transparent=False)
     levels_place = ULevelsPlace(menu_lvl, start_the_game)
     levels_place.change_size(700, 450)
-    levels_place.addLevel(load_image(r'..\images\triangle.png', -1), 'triangle')
-    levels_place.addLevel(load_image(r'..\images\circle.png', -1), 'circle')
-    levels_place.addLevel(load_image(r'..\images\sueta.png', -1), 'sueta')
-    levels_place.addLevel(load_image(r'..\images\star4.png', -1), 'star4')
-    levels_place.addLevel(load_image(r'..\images\heart.png', -1), 'heart')
-    levels_place.addLevel(load_image(r'..\images\star5.png', -1), 'star5')
-    levels_place.addLevel(load_image(r'..\images\star6.png', -1), 'star6')
-    levels_place.addLevel(load_image(r'..\images\lighting.png', -1), 'lighting')
-    levels_place.addLevel(load_image(r'..\images\cloud.png', -1), 'cloud')
-    UBackButton(menu_lvl, (0, 450, 50, 50), main)
+    for name, res, time in get_levels():
+        if res is None:
+            levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}', name)
+        else:
+            levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}, {res}%, {time}sec', name)
+    UBackButton(menu_lvl, (0, 450, 50, 50), menu_lvl.close)
     menu_lvl.mainloop()
 
 
-def start_the_game(lvl_name, menu):
-    game_run(lvl_name, menu)
+def start_the_game(lvl_name, menu1):
+    game_run(lvl_name, menu1, not msc_btn.music_is)
 
 
 def main():

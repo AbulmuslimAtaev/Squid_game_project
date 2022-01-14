@@ -1,3 +1,5 @@
+import sqlite3
+
 import pygame
 from random import randint
 import sys
@@ -97,19 +99,26 @@ def draw_update(in_group, group_to_check):
     return True, 0
 
 
-def game_run(image_name, menu=None):
-    pygame.display.set_caption("PySquid")
-    pygame.mixer.music.load('../sound/game_musik.ogg')
-    pygame.mixer.music.set_volume(0.2)
-    pygame.mixer.music.play(-1)
+def game_run(image_name, menu=None, music_is=True):
+    con = sqlite3.connect("../data/database.sqlite")
+    cur = con.cursor()
+    if music_is:
+        pygame.display.set_caption("PySquid")
+        pygame.mixer.music.load('../sound/game_musik.ogg')
+        pygame.mixer.music.set_volume(0.2)
+        pygame.mixer.music.play(-1)
 
-    sound1 = pygame.mixer.Sound('../sound/crackling.wav')
-    pygame.mixer.Channel(0).set_volume(0.4)
-    pygame.mixer.Channel(0).play(sound1, loops=-1)
-    pygame.mixer.Channel(0).pause()
-    pygame.time.set_timer(MYEVENTTYPE, 50)
+        sound1 = pygame.mixer.Sound('../sound/crackling.wav')
+        pygame.mixer.Channel(0).set_volume(0.4)
+        pygame.mixer.Channel(0).play(sound1, loops=-1)
+        pygame.mixer.Channel(0).pause()
+        pygame.time.set_timer(MYEVENTTYPE, 50)
+
     MYEVENTTYPE2 = pygame.USEREVENT + 1
     pygame.time.set_timer(MYEVENTTYPE2, 10)
+    MYEVENTTYPE3 = pygame.USEREVENT + 2
+    pygame.time.set_timer(MYEVENTTYPE3, 500)
+
     all_sprites = pygame.sprite.Group()
     drawed_check = pygame.sprite.Group()
     drawed = pygame.sprite.Group()
@@ -122,7 +131,13 @@ def game_run(image_name, menu=None):
     Cookie(all_sprites, size)
     form = Form(values[1], image_name, all_sprites, size)
     menu.transparent = False
-    pause = UPauseButton(all_sprites, menu, screen)
+
+    def close():
+        nonlocal running
+        running = False
+
+    pause = UPauseButton(all_sprites, None, screen)
+    pause.set_gen_menu([pause.menu.close, close, pygame.mixer.music.stop])
     pause.addButton('Resume', pause.menu.close)
     pause.addButton('Quit', sys.exit)
 
@@ -136,6 +151,10 @@ def game_run(image_name, menu=None):
     time = 0.001
     font = pygame.font.SysFont('Consolas', 30)
     flag = False, count_of_values
+    process = 0
+    time_str = str(time).replace(".", ":")
+    if len(str(round(time))) <= 1:
+        time_str = "0" + time_str
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -144,12 +163,19 @@ def game_run(image_name, menu=None):
                 igla_flag = True
             if event.type == MYEVENTTYPE2:
                 time = round(time + 0.01, 2)
+            if event.type == MYEVENTTYPE3:
+                req = f"UPDATE Levels_rezult SET rezult = {process}, time = '{time_str}' WHERE Level_name = '{image_name}' AND {process} > rezult"
+                print(req)
+                cur.execute(req)
+                con.commit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.mixer.Channel(0).unpause()
+                if music_is:
+                    pygame.mixer.Channel(0).unpause()
                 mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
                 pause_flag = pause.click_check(mouse_sprite)
             if event.type == pygame.MOUSEBUTTONUP:
-                pygame.mixer.Channel(0).pause()
+                if music_is:
+                    pygame.mixer.Channel(0).pause()
         press = pygame.mouse.get_pressed()
         pos = pygame.mouse.get_pos()
         if press[0]:
@@ -174,7 +200,7 @@ def game_run(image_name, menu=None):
         if pygame.mouse.get_focused():
             pygame.mouse.set_visible(False)
             igla.move(pos)
-        time_str = str(time).replace(".", ":")
+        time_str = str(time)
         if len(str(round(time))) <= 1:
             time_str = "0" + time_str
         screen.blit(font.render(time_str,
@@ -183,13 +209,16 @@ def game_run(image_name, menu=None):
         screen.blit(font.render(f"{process}%",
                                 True, (0, 0, 0)), (size[0] * 2 // 4 - 15, size[1] // 10))
         pygame.display.flip()
-    if not running:
+    if not running and not pause_flag:
         pygame.mixer.Channel(0).pause()
         final_win = UFinalWindow(all_sprites, screen)
-        final_win.addButton('Back', menu.mainloop)
+        final_win.addButton('Back', [final_win.menu.close, pygame.mixer.music.stop])
         final_win.addButton('Quit', sys.exit)
         if win_flag:
             print("Выиграл")
+            req = f"UPDATE Levels_rezult SET rezult = {100}, time = {time_str} WHERE Level_name = '{image_name}'"
+            print(req)
+            cur.execute(req)
             final_win.menu.setFon(load_image('../ui_images/WinPlace.png'))
         else:
             final_win.menu.setFon(load_image('../ui_images/LosePlace.png'))
