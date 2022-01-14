@@ -1,3 +1,5 @@
+import sys
+
 import pygame
 from game_view import game_run
 from support_funcs import load_image
@@ -6,7 +8,7 @@ from UT import UMenu, ULevelsPlace, UBackButton, UButton, UMusicButton
 
 def go_to_levels():
     screen2 = pygame.display.set_mode((700, 500))
-    menu_lvl = UMenu(screen2, color='Purple', transparent=True)
+    menu_lvl = UMenu(screen2, color='Gray', transparent=False)
     levels_place = ULevelsPlace(menu_lvl, start_the_game)
     levels_place.change_size(700, 450)
     levels_place.addLevel(load_image(r'..\images\triangle.png', -1), 'triangle')
@@ -32,8 +34,11 @@ def main():
     screen = pygame.display.set_mode((width, height))
     menu = UMenu(screen)
     menu.setFon(load_image('../ui_images/fon.jpg'))
+    sound2 = pygame.mixer.Sound('../sound/intro_music.wav')
+    sound2.play()
     UButton(menu, go_to_levels, 'start', 0)
-    UMusicButton(menu)
+    UMusicButton(menu, [sound2.play, sound2.stop])
+    UButton(menu, sys.exit, 'quit', 1)
     pygame.display.flip()
     menu.mainloop()
 

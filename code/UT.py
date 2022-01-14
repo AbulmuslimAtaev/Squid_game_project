@@ -178,17 +178,17 @@ class ULevelsPlace(UWidget):
 
 
 class UMusicButton(UWidget):
-    def __init__(self, menu):
+    def __init__(self, menu, funcs):
         super(UMusicButton, self).__init__(menu)
         self.music_is = False
+        self.funcs = funcs
 
     def draw(self, color='black'):
         self.image = pygame.transform.scale(load_image(r'..\ui_images\ButtonsStyle10_05.png'), (100, 100))
         self.rect = self.image.get_rect()
         self.rect.x = 10
         self.rect.y = self.menu.rect.h - self.rect.h - 10
-        if self.music_is:
-            pygame.draw.line(self.image, pygame.Color('red'), (100, 0), (0, 100), 10)
+        self.music_stat_draw()
 
     def hover(self, flag):
         if flag:
@@ -199,7 +199,14 @@ class UMusicButton(UWidget):
     def click_check(self, pos):
         if pygame.sprite.collide_rect(pos, self):
             self.music_is = not self.music_is
+        self.music_stat_draw()
 
+    def music_stat_draw(self):
+        if self.music_is:
+            self.funcs[1]()
+            pygame.draw.line(self.image, pygame.Color('red'), (100, 0), (0, 100), 10)
+        else:
+            self.funcs[0]()
 
 
 class UBackButton(UWidget):

@@ -105,7 +105,6 @@ def game_run(image_name, menu=None):
     pygame.mixer.Channel(0).set_volume(0.4)
     pygame.mixer.Channel(0).play(sound1, loops=-1)
     pygame.mixer.Channel(0).pause()
-    sound2 = pygame.mixer.Sound('../sound/intro_music.wav')
     pygame.time.set_timer(MYEVENTTYPE, 50)
     MYEVENTTYPE2 = pygame.USEREVENT + 1
     pygame.time.set_timer(MYEVENTTYPE2, 10)
@@ -118,7 +117,7 @@ def game_run(image_name, menu=None):
         CheckForm(i, drawed_check, size)
     Cookie(all_sprites, size)
     form = Form(values[1], image_name, all_sprites, size)
-
+    menu.transparent = False
     pause = UPauseButton(all_sprites, menu, screen)
     pause.addButton('Resume', pause.menu.close)
     pause.addButton('Quit', sys.exit)
