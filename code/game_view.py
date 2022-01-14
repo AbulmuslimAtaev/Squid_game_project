@@ -180,9 +180,9 @@ def game_run(image_name, menu=None):
         final_win.addButton('Quit', sys.exit)
         if win_flag:
             print("Выиграл")
-            final_win.menu.setFon(load_image('../ui_images/BigPurple.png'))
+            final_win.menu.setFon(load_image('../ui_images/WinPlace.png'))
         else:
-            final_win.menu.setFon(load_image('../ui_images/BigPurple.png'))
+            final_win.menu.setFon(load_image('../ui_images/LosePlace.png'))
             print("Проиграл")
         final_win.go()
 

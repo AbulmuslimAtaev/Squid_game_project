@@ -10,7 +10,6 @@ def load_image(path, colorkey=None, flag=True):
         fullname = os.path.join(path)
         if not os.path.isfile(fullname):
             print(f"Файл с изображением '{path}' не найден")
-            raise
             sys.exit()
         image = pygame.image.load(fullname)
     else:
