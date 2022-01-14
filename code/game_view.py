@@ -29,7 +29,7 @@ class Igla(pygame.sprite.Sprite):
         self.rect.y = pos[1]
 
     def turn(self):
-        self.image = Igla.images[randint(4, 12)]
+        self.image = Igla.images[next(self.num)]
 
 
 class Form(pygame.sprite.Sprite):
