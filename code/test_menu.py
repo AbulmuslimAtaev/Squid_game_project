@@ -10,14 +10,19 @@ def go_to_levels():
     screen2 = pygame.display.set_mode((700, 500))
     menu_lvl = UMenu(screen2, color='Gray', transparent=False)
     levels_place = ULevelsPlace(menu_lvl, start_the_game)
+    update_levels(levels_place)
+    levels_place.add_update_levels(update_levels)
     levels_place.change_size(700, 450)
+    UBackButton(menu_lvl, (0, 450, 50, 50), menu_lvl.close)
+    menu_lvl.mainloop()
+
+
+def update_levels(levels_place):
     for name, res, time in get_levels():
-        if res is None:
+        if res == 0:
             levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}', name)
         else:
             levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}, {res}%, {time}sec', name)
-    UBackButton(menu_lvl, (0, 450, 50, 50), menu_lvl.close)
-    menu_lvl.mainloop()
 
 
 def start_the_game(lvl_name, menu1):

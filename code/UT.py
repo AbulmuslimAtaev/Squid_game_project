@@ -26,6 +26,9 @@ class UWidget(pygame.sprite.Sprite):
     def click_check(self, pos):
         pass
 
+    def update(self):
+        pass
+
 
 class UButton(UWidget):
     def __init__(self, menu, func, text, num):
@@ -96,6 +99,7 @@ class UMenu:
                     mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
                     for i in self.all_sprites:
                         i.pos_check(mouse_sprite)
+            self.all_sprites.update()
             pygame.mouse.set_visible(True)
             if self.fon:
                 self.screen.blit(pygame.transform.scale(self.fon, (self.rect.w, self.rect.h)), (0, 0))
@@ -132,6 +136,7 @@ class ULevelsPlace(UWidget):
         self.width = self.menu.rect.w
         self.height = self.menu.rect.h
         self.func = func
+        self.update_func = False
 
     def addLevel(self, image, text, name):
         self.levels.append((image, name, text))
@@ -182,6 +187,15 @@ class ULevelsPlace(UWidget):
     def change_size(self, width, height):
         self.width = width
         self.height = height
+
+    def add_update_levels(self, func):
+        self.update_func = func
+
+    def update(self):
+        if self.update_func:
+            self.levels = list()
+            self.update_func(self)
+            self.draw()
 
 
 class UMusicButton(UWidget):
