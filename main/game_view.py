@@ -116,9 +116,9 @@ class Game:
         self.font = pygame.font.SysFont('Consolas', 30)
 
         self.MYEVENTTYPE = pygame.USEREVENT + 1
-        self.MYEVENTTYPE2 = pygame.USEREVENT + 1
-        pygame.time.set_timer(self.MYEVENTTYPE2, 10)
-        self.MYEVENTTYPE3 = pygame.USEREVENT + 2
+        self.MYEVENTTYPE2 = pygame.USEREVENT + 2
+        pygame.time.set_timer(self.MYEVENTTYPE2, 100)
+        self.MYEVENTTYPE3 = pygame.USEREVENT + 3
         pygame.time.set_timer(self.MYEVENTTYPE3, 500)
 
     def music_go(self):
