@@ -1,9 +1,9 @@
 import sys
 
 import pygame
-from game_view import game_run
+from game_view import Game
 from support_funcs import load_image, get_levels
-from UT import UMenu, ULevelsPlace, UBackButton, UButton, UMusicButton
+from UT import UMenu, ULevelsPlace, UBackButton, UButton, UMusicButton, UFinalWindow
 
 
 def go_to_levels():
@@ -21,7 +21,22 @@ def go_to_levels():
 
 
 def start_the_game(lvl_name, menu1):
-    game_run(lvl_name, menu1, not msc_btn.music_is)
+    game = Game(lvl_name, menu1, not msc_btn.music_is)
+    game.run()
+    final_win = UFinalWindow(game.all_sprites, menu1.screen)
+    final_win.addButton('Back', [pygame.event.clear, final_win.menu.close, pygame.mixer.music.stop])
+    final_win.addButton('Quit', sys.exit)
+    if game.win_flag and not game.pause_flag:
+        print("Выиграл")
+        req = f"UPDATE Levels_rezult SET rezult = {100}, time = {game.time_str} WHERE Level_name = '{lvl_name}'"
+        print(req)
+        game.cur.execute(req)
+        final_win.menu.setFon(load_image('../ui_images/WinPlace.png'))
+        final_win.go()
+    elif not game.pause_flag:
+        final_win.menu.setFon(load_image('../ui_images/LosePlace.png'))
+        print("Проиграл")
+        final_win.go()
 
 
 def main():

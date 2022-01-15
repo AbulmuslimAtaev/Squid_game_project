@@ -10,7 +10,6 @@ from support_funcs import SpriteMouseLocation, pic2text, load_image
 pygame.init()
 size = (700, 500)
 screen = pygame.display.set_mode(size)
-MYEVENTTYPE = pygame.USEREVENT + 1
 
 
 class Igla(pygame.sprite.Sprite):
@@ -99,139 +98,142 @@ def draw_update(in_group, group_to_check):
     return True, 0
 
 
-def game_run(image_name, menu=None, music_is=True):
-    con = sqlite3.connect("../data/database.sqlite")
-    cur = con.cursor()
-    if music_is:
-        pygame.display.set_caption("PySquid")
-        pygame.mixer.music.load('../sound/game_musik.ogg')
-        pygame.mixer.music.set_volume(0.2)
-        pygame.mixer.music.play(-1)
+class Game:
+    def __init__(self, image_name, menu=None, music_is=True):
+        self.image_name = image_name
+        self.menu = menu
+        self.music_is = music_is
 
-        sound1 = pygame.mixer.Sound('../sound/crackling.wav')
-        pygame.mixer.Channel(0).set_volume(0.4)
-        pygame.mixer.Channel(0).play(sound1, loops=-1)
-        pygame.mixer.Channel(0).pause()
-        pygame.time.set_timer(MYEVENTTYPE, 50)
+        self.running = True
+        self.pause_flag = False
+        self.win_flag = False
 
-    MYEVENTTYPE2 = pygame.USEREVENT + 1
-    pygame.time.set_timer(MYEVENTTYPE2, 10)
-    MYEVENTTYPE3 = pygame.USEREVENT + 2
-    pygame.time.set_timer(MYEVENTTYPE3, 500)
+        self.all_sprites = pygame.sprite.Group()
 
-    all_sprites = pygame.sprite.Group()
-    drawed_check = pygame.sprite.Group()
-    drawed = pygame.sprite.Group()
-    igla_sprites = pygame.sprite.Group()
-    values = pic2text(image_name)
-    count_of_values = 0
-    for i in values[0]:
-        CheckForm(i, drawed_check, size)
-        count_of_values += 1
-    Cookie(all_sprites, size)
-    form = Form(values[1], image_name, all_sprites, size)
-    menu.transparent = False
+        self.con = sqlite3.connect("../data/database.sqlite")
+        self.cur = self.con.cursor()
 
-    def close():
-        nonlocal running
-        running = False
+        self.font = pygame.font.SysFont('Consolas', 30)
 
-    pause = UPauseButton(all_sprites, None, screen)
-    pause.set_gen_menu([pause.menu.close, close, pygame.mixer.music.stop])
-    pause.addButton('Resume', pause.menu.close)
-    pause.addButton('Quit', sys.exit)
+        self.MYEVENTTYPE = pygame.USEREVENT + 1
+        self.MYEVENTTYPE2 = pygame.USEREVENT + 1
+        pygame.time.set_timer(self.MYEVENTTYPE2, 10)
+        self.MYEVENTTYPE3 = pygame.USEREVENT + 2
+        pygame.time.set_timer(self.MYEVENTTYPE3, 500)
 
-    igla = Igla(igla_sprites, size)
-    mouse_sprite = SpriteMouseLocation()
+    def music_go(self):
+        if self.music_is:
+            pygame.display.set_caption("PySquid")
+            pygame.mixer.music.load('../sound/game_musik.ogg')
+            pygame.mixer.music.set_volume(0.2)
+            pygame.mixer.music.play(-1)
 
-    igla_flag = False
-    running = True
-    pause_flag = False
-    win_flag = False
-    time = 0.001
-    font = pygame.font.SysFont('Consolas', 30)
-    flag = False, count_of_values
-    process = 0
-    time_str = str(time).replace(".", ":")
-    if len(str(round(time))) <= 1:
-        time_str = "0" + time_str
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-            if event.type == MYEVENTTYPE:
-                igla_flag = True
-            if event.type == MYEVENTTYPE2:
-                time = round(time + 0.01, 2)
-            if event.type == MYEVENTTYPE3:
-                req = f"UPDATE Levels_rezult SET rezult = {process}, time = '{time_str}' WHERE Level_name = '{image_name}' AND {process} > rezult"
-                print(req)
-                cur.execute(req)
-                con.commit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if music_is:
-                    pygame.mixer.Channel(0).unpause()
-                mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
-                pause_flag = pause.click_check(mouse_sprite)
-            if event.type == pygame.MOUSEBUTTONUP:
-                if music_is:
-                    pygame.mixer.Channel(0).pause()
-        press = pygame.mouse.get_pressed()
-        pos = pygame.mouse.get_pos()
-        if press[0]:
-            if not pause_flag:
-                if igla_flag:
-                    igla.turn()
-                    igla_flag = False
-                spot = Spot(pos, drawed)
-                if spot.check_lose(form):
-                    running = False
-                    win_flag = False
-                flag = draw_update(drawed_check, drawed)
-                if flag[0]:
-                    running = False
-                    win_flag = True
+            sound1 = pygame.mixer.Sound('../sound/crackling.wav')
+            pygame.mixer.Channel(0).set_volume(0.4)
+            pygame.mixer.Channel(0).play(sound1, loops=-1)
+            pygame.mixer.Channel(0).pause()
+            pygame.time.set_timer(self.MYEVENTTYPE, 50)
 
-        screen.fill(pygame.Color('grey'))
-        all_sprites.draw(screen)
-        drawed.draw(screen)
-        igla_sprites.draw(screen)
-        drawed_check.draw(screen)
-        if pygame.mouse.get_focused():
-            pygame.mouse.set_visible(False)
-            igla.move(pos)
+    def run(self):
+        self.music_go()
+
+        drawed_check = pygame.sprite.Group()
+        drawed = pygame.sprite.Group()
+        igla_sprites = pygame.sprite.Group()
+        values = pic2text(self.image_name)
+        count_of_values = 0
+        for i in values[0]:
+            CheckForm(i, drawed_check, size)
+            count_of_values += 1
+        Cookie(self.all_sprites, size)
+        form = Form(values[1], self.image_name, self.all_sprites, size)
+        self.menu.transparent = False
+
+        pause = self.make_me_pause()
+
+        igla = Igla(igla_sprites, size)
+        mouse_sprite = SpriteMouseLocation()
+
+        igla_flag = False
+        time = 0.001
+        flag = False, count_of_values
+        process = 0
+        self.time_str = str(time)
+        if len(str(round(time))) <= 1:
+            self.time_str = "0" + self.time_str
+        while self.running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == self.MYEVENTTYPE:
+                    igla_flag = True
+                if event.type == self.MYEVENTTYPE2:
+                    time = round(time + 0.01, 2)
+                if event.type == self.MYEVENTTYPE3:
+                    req = f"UPDATE Levels_rezult SET rezult = {process}, time = '{self.time_str}' WHERE Level_name = '{self.image_name}' AND {process} > rezult"
+                    print(req)
+                    self.cur.execute(req)
+                    self.con.commit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.music_is:
+                        pygame.mixer.Channel(0).unpause()
+                    mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
+                    self.pause_flag = pause.click_check(mouse_sprite)
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if self.music_is:
+                        pygame.mixer.Channel(0).pause()
+            press = pygame.mouse.get_pressed()
+            pos = pygame.mouse.get_pos()
+            if press[0]:
+                if not self.pause_flag:
+                    if igla_flag:
+                        igla.turn()
+                        igla_flag = False
+                    spot = Spot(pos, drawed)
+                    if spot.check_lose(form):
+                        self.running = False
+                        self.win_flag = False
+                    flag = draw_update(drawed_check, drawed)
+                    if flag[0]:
+                        self.running = False
+                        self.win_flag = True
+
+            screen.fill(pygame.Color('grey'))
+            self.all_sprites.draw(screen)
+            drawed.draw(screen)
+            igla_sprites.draw(screen)
+            drawed_check.draw(screen)
+
+            if pygame.mouse.get_focused():
+                pygame.mouse.set_visible(False)
+                igla.move(pos)
+            self.draw_time_and_process(time, flag, count_of_values)
+            pygame.display.flip()
+        if not self.running and not self.pause_flag:
+            pygame.mixer.Channel(0).pause()
+
+    def draw_time_and_process(self, time, flag, count_of_values):
         time_str = str(time)
         if len(str(round(time))) <= 1:
             time_str = "0" + time_str
-        screen.blit(font.render(time_str,
-                                True, (0, 0, 0)), (size[0] * 3 // 4, size[1] // 8 * 7))
+        screen.blit(self.font.render(time_str,
+                                     True, (0, 0, 0)), (size[0] * 3 // 4, size[1] // 8 * 7))
         process = 100 - flag[1] * 100 // count_of_values
-        screen.blit(font.render(f"{process}%",
-                                True, (0, 0, 0)), (size[0] * 2 // 4 - 15, size[1] // 10))
-        pygame.display.flip()
-    if not running and not pause_flag:
-        pygame.mixer.Channel(0).pause()
-        final_win = UFinalWindow(all_sprites, screen)
-        final_win.addButton('Back', [final_win.menu.close, pygame.mixer.music.stop])
-        final_win.addButton('Quit', sys.exit)
-        if win_flag:
-            print("Выиграл")
-            req = f"UPDATE Levels_rezult SET rezult = {100}, time = {time_str} WHERE Level_name = '{image_name}'"
-            print(req)
-            cur.execute(req)
-            final_win.menu.setFon(load_image('../ui_images/WinPlace.png'))
-        else:
-            final_win.menu.setFon(load_image('../ui_images/LosePlace.png'))
-            print("Проиграл")
-        final_win.go()
+        screen.blit(self.font.render(f"{process}%",
+                                     True, (0, 0, 0)), (size[0] * 2 // 4 - 15, size[1] // 10))
 
-    #
-    # if menu:
-    #     pygame.mouse.set_visible(True)
-    #     menu.close()
-    # else:
-    #     sys.exit()
+    def close(self):
+        self.running = False
+
+    def make_me_pause(self):
+        pause = UPauseButton(self.all_sprites, None, screen)
+        pause.set_gen_menu([pause.menu.close, self.close, pygame.mixer.music.stop])
+        pause.addButton('Resume', pause.menu.close)
+        pause.addButton('Quit', sys.exit)
+        return pause
 
 
 if __name__ == '__main__':
-    game_run(r'lighting', UMenu)
+    print('hi')
+    game = Game('lighting', UMenu)
+    game.run()

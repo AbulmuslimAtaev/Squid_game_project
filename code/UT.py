@@ -85,17 +85,17 @@ class UMenu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
-                elif event.type == pygame.MOUSEMOTION:
-                    yes_flag = True
-                    mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
-                    for i in self.all_sprites:
-                        i.pos_check(mouse_sprite)
                 elif event.type == self.MOUSECONSTANT:
                     if yes_flag:
                         mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
                         for i in self.all_sprites:
                             i.click_check(mouse_sprite)
                         yes_flag = False
+                elif event.type == pygame.MOUSEMOTION:
+                    yes_flag = True
+                    mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
+                    for i in self.all_sprites:
+                        i.pos_check(mouse_sprite)
             pygame.mouse.set_visible(True)
             if self.fon:
                 self.screen.blit(pygame.transform.scale(self.fon, (self.rect.w, self.rect.h)), (0, 0))
