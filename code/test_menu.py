@@ -29,8 +29,8 @@ def start_the_game(lvl_name, menu1):
     if game.win_flag and not game.pause_flag:
         print("Выиграл")
         req = f"UPDATE Levels_rezult SET rezult = {100}, time = {game.time_str} WHERE Level_name = '{lvl_name}'"
-        print(req)
         game.cur.execute(req)
+        game.con.commit()
         final_win.menu.setFon(load_image('../ui_images/WinPlace.png'))
         final_win.go()
     elif not game.pause_flag:

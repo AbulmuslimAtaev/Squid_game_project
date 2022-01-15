@@ -168,7 +168,7 @@ class Game:
                 if event.type == self.MYEVENTTYPE:
                     igla_flag = True
                 if event.type == self.MYEVENTTYPE2:
-                    time = round(time + 0.01, 2)
+                    time = round(time + 0.1, 2)
                 if event.type == self.MYEVENTTYPE3:
                     req = f"UPDATE Levels_rezult SET rezult = {process}, time = '{self.time_str}' WHERE Level_name = '{self.image_name}' AND {process} > rezult"
                     print(req)
@@ -194,7 +194,7 @@ class Game:
                         self.running = False
                         self.win_flag = False
                     flag = draw_update(drawed_check, drawed)
-                    if flag[0]:
+                    if process == 100:
                         self.running = False
                         self.win_flag = True
 
@@ -207,19 +207,21 @@ class Game:
             if pygame.mouse.get_focused():
                 pygame.mouse.set_visible(False)
                 igla.move(pos)
-            self.draw_time_and_process(time, flag, count_of_values)
+
+            self.time_str = str(time) + "0"
+            if len(str(round(time))) <= 1:
+                self.time_str = "0" + self.time_str
+            process = 100 - flag[1] * 100 // count_of_values
+            self.draw_time_and_process(self.time_str, process)
+
             pygame.display.flip()
         if not self.running and not self.pause_flag:
             pygame.mixer.Channel(0).pause()
 
-    def draw_time_and_process(self, time, flag, count_of_values):
-        time_str = str(time)
-        if len(str(round(time))) <= 1:
-            time_str = "0" + time_str
-        screen.blit(self.font.render(time_str,
+    def draw_time_and_process(self, time, proc):
+        screen.blit(self.font.render(time,
                                      True, (0, 0, 0)), (size[0] * 3 // 4, size[1] // 8 * 7))
-        process = 100 - flag[1] * 100 // count_of_values
-        screen.blit(self.font.render(f"{process}%",
+        screen.blit(self.font.render(f"{proc}%",
                                      True, (0, 0, 0)), (size[0] * 2 // 4 - 15, size[1] // 10))
 
     def close(self):
