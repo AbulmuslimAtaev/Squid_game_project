@@ -19,7 +19,3 @@ class dbManager:
             seq += f"WHERE {' AND '.join([f'{i} {to_where[i]}' for i in to_where])} "
         data = self.cur.execute(seq).fetchall()
         return data
-
-
-con = sqlite3.connect('../data/database.sqlite')
-cur = con.cursor()
