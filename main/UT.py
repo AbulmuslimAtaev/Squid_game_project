@@ -1,4 +1,4 @@
-from support_funcs import SpriteMouseLocation, load_image
+from SupportFuncs import SpriteMouseLocation, load_image
 import pygame
 import sys
 
@@ -37,11 +37,11 @@ class UButton(UWidget):
         self.flag = False
         self.func = func
         self.num = num
+        self.font = pygame.font.Font('../font/arial.ttf', 50)
 
     def draw(self, image_name='BigPurple.png'):
         if self.text:
-            font = pygame.font.Font(pygame.font.match_font('Arial'), 50)
-            text_pg = font.render(self.text, True, (255, 255, 255))
+            text_pg = self.font.render(self.text, True, (255, 255, 255))
             self.image = pygame.transform.scale(load_image('../ui_images/' + image_name), (text_pg.get_width() + 40, text_pg.get_height() + 20))
 
             self.rect = self.image.get_rect()
@@ -137,6 +137,7 @@ class ULevelsPlace(UWidget):
         self.height = self.menu.rect.h
         self.func = func
         self.update_func = False
+        self.font = pygame.font.Font('../font/arial.ttf', 20)
 
     def addLevel(self, image, text, name):
         self.levels.append((image, name, text))
@@ -170,8 +171,7 @@ class ULevelsPlace(UWidget):
                                     (10 * j + part_x * (j - 1) + image_lvl.get_width() // 2,
                                      10 + (i * self.rect.h + 10) // self.cols + image_lvl.get_height() // 2))
 
-                    font = pygame.font.Font(pygame.font.match_font('calibri'), 20)
-                    text_pg = font.render(text, True, (255, 255, 255))
+                    text_pg = self.font.render(text, True, (255, 255, 255))
                     self.image.blit(text_pg, (10 + 10 * (j + 1) + part_x * (j - 1),
                                               (((i + 1) * self.rect.h) // self.cols) - text_pg.get_height() - 5))
                     count += 1
@@ -257,10 +257,26 @@ class UBackButton(UWidget):
                 self.gen_menu()
 
 
+class ULabel(UWidget):
+    def __init__(self, menu, text, pos, color):
+        super(ULabel, self).__init__(menu)
+        self.text = text
+        self.pos = pos
+        self.color = color
+        self.font = pygame.font.Font('../font/arial.ttf', 30)
+
+    def draw(self):
+        self.image = pygame.Surface((self.menu.rect.w, self.menu.rect.h), pygame.SRCALPHA)
+        self.rect = self.image.get_rect()
+        text_pg = self.font.render(self.text, True, self.color)
+        self.image.blit(text_pg, (self.pos[0] - text_pg.get_width() // 2, self.pos[1] - text_pg.get_height() // 2))
+
+
 class UPauseMenu(UWidget):
     def __init__(self, menu):
         super(UPauseMenu, self).__init__(menu)
         self.buttons = list()
+        self.labels = list()
         self.fon = False
 
     def draw(self):
@@ -275,6 +291,10 @@ class UPauseMenu(UWidget):
     def addButton(self, text, func):
         btn = UButton(self.menu, func, text, len(self.buttons))
         self.buttons.append(btn)
+
+    def addLabel(self, text, pos, color):
+        label = ULabel(self.menu, text, pos, color)
+        self.labels.append(label)
 
 
 class UPauseButton(pygame.sprite.Sprite):
@@ -314,16 +334,22 @@ class UFinalWindow(pygame.sprite.Sprite):
         self.image = pygame.Surface((0, 0), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         self.buttons = list()
+        self.labels = list()
         self.screen = screen
         self.menu = UMenu(self.screen, color='gray')
 
     def addButton(self, text, func):
         self.buttons.append((text, func))
 
+    def addLabel(self, text, pos, color):
+        self.labels.append((text, pos, color))
+
     def go(self):
         ps_menu = UPauseMenu(self.menu)
         for text, func in self.buttons:
             ps_menu.addButton(text, func)
+        for text, pos, color in self.labels:
+            ps_menu.addLabel(text, pos, color)
         pygame.mouse.set_visible(True)
         self.menu.changeMouseConstantToClick(pygame.MOUSEBUTTONDOWN)
         self.menu.mainloop()

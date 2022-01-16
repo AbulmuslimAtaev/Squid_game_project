@@ -1,9 +1,10 @@
 import sys
 
 import pygame
-from game_view import Game
-from support_funcs import load_image, get_levels
+from SupportFuncs import load_image
+from dbManager import dbManager
 from UT import UMenu, ULevelsPlace, UBackButton, UButton, UMusicButton, UFinalWindow
+from Game import Game
 
 
 def go_to_levels():
@@ -18,29 +19,28 @@ def go_to_levels():
 
 
 def update_levels(levels_place):
-    for name, res, time in get_levels():
+    db_manager = dbManager('../data/database.sqlite')
+    for name, res, time in db_manager.get_data('levels_result', '*', ''):
         if res == 0:
             levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}', name)
         else:
-            levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}, {res}%, {time}sec', name)
+            levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}, {res}%, {round(float(time))}s', name)
 
 
 def start_the_game(lvl_name, menu1):
     game = Game(lvl_name, menu1, not msc_btn.music_is)
     game.run()
+    db_manager = dbManager('../data/database.sqlite')
     final_win = UFinalWindow(game.all_sprites, menu1.screen)
     final_win.addButton('Back', [pygame.event.clear, final_win.menu.close, pygame.mixer.music.stop])
     final_win.addButton('Quit', sys.exit)
+    final_win.addLabel(f'{game.process}% | {game.time_str}s', (350, 180), (153, 204, 51))
     if game.win_flag and not game.pause_flag:
-        print("Выиграл")
-        req = f"UPDATE Levels_rezult SET rezult = {100}, time = {game.time_str} WHERE Level_name = '{lvl_name}'"
-        game.cur.execute(req)
-        game.con.commit()
+        db_manager.set_data('levels_result', {'result': 100, 'time': game.time_str}, {'level_name = ': f'"{lvl_name}"'})
         final_win.menu.setFon(load_image('../ui_images/WinPlace.png'))
         final_win.go()
     elif not game.pause_flag:
         final_win.menu.setFon(load_image('../ui_images/LosePlace.png'))
-        print("Проиграл")
         final_win.go()
 
 

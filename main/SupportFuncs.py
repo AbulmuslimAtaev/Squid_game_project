@@ -1,9 +1,8 @@
+from random import randint
 from PIL import Image
 import os
 import pygame
 import sys
-from random import randint as ran
-import sqlite3
 
 
 def load_image(path, colorkey=None, flag=True):
@@ -40,9 +39,9 @@ def pic2text(imagename):
             pix = pixels[i, j]
             if pix[0] <= 100 and pix[1] <= 100 and pix[2] <= 100:
                 values.append((i, j))
-                r = ran(0, 100)
+                r = randint(0, 100)
                 if r >= 2:
-                    pixels[i, j] = (ran(c[0][0], c[1][0]), ran(c[0][1], c[1][1]), (ran(c[0][2], c[1][2])))
+                    pixels[i, j] = (randint(c[0][0], c[1][0]), randint(c[0][1], c[1][1]), (randint(c[0][2], c[1][2])))
                 else:
                     pixels[i, j] = (255, 255, 255, 0)
             else:
@@ -56,12 +55,15 @@ class SpriteMouseLocation(pygame.sprite.Sprite):
         self.rect = pygame.Rect(0, 0, 1, 1)
 
 
-def get_levels():
-    con = sqlite3.connect('../data/database.sqlite')
-    cur = con.cursor()
-    data = cur.execute('SELECT * FROM Levels_rezult').fetchall()
-    con.close()
-    return data
-
-
-print(get_levels())
+def draw_update(in_group, group_to_check):
+    count = 0
+    fg = True
+    for i in in_group.sprites():
+        if not pygame.sprite.spritecollideany(i, group_to_check):
+            fg = False
+            count += 1
+        else:
+            i.kill()
+    if not fg:
+        return False, count
+    return True, 0
