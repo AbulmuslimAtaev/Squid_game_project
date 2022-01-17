@@ -1,3 +1,5 @@
+import pygame
+
 from UT import UMenu, UPauseButton
 from dbManager import dbManager
 from SupportFuncs import *
@@ -76,7 +78,8 @@ class Game:
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    sys.exit()
+                    pygame.quit()
+                    sys.exit(0)
                 if event.type == self.MYEVENTTYPE:
                     igla_flag = True
                 if event.type == self.MYEVENTTYPE2:

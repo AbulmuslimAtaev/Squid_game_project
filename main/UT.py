@@ -1,6 +1,7 @@
 from SupportFuncs import SpriteMouseLocation, load_image
 import pygame
 import sys
+import os
 
 
 class UWidget(pygame.sprite.Sprite):
@@ -42,7 +43,8 @@ class UButton(UWidget):
     def draw(self, image_name='BigPurple.png'):
         if self.text:
             text_pg = self.font.render(self.text, True, (255, 255, 255))
-            self.image = pygame.transform.scale(load_image('../ui_images/' + image_name), (text_pg.get_width() + 40, text_pg.get_height() + 20))
+            self.image = pygame.transform.scale(load_image('../ui_images/' + image_name),
+                                                (text_pg.get_width() + 40, text_pg.get_height() + 20))
 
             self.rect = self.image.get_rect()
             self.rect.x = self.menu.rect.w // 2 - self.rect.w // 2
@@ -77,34 +79,39 @@ class UMenu:
         self.fon = False
 
     def mainloop(self):
-        self.running = True
-        mouse_sprite = SpriteMouseLocation()
-        self.draw_all()
-        pygame.display.flip()
-        yes_flag = False
-        while self.running:
-            if not self.transparent:
-                self.screen.fill(self.color)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-                elif event.type == self.MOUSECONSTANT:
-                    if yes_flag:
+        try:
+            self.running = True
+            mouse_sprite = SpriteMouseLocation()
+            self.draw_all()
+            pygame.display.flip()
+            yes_flag = False
+            while self.running:
+                if not self.transparent:
+                    self.screen.fill(self.color)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        os._exit(0)
+                        sys.exit(0)
+                    elif event.type == self.MOUSECONSTANT:
+                        if yes_flag:
+                            mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
+                            for i in self.all_sprites:
+                                i.click_check(mouse_sprite)
+                            yes_flag = False
+                    elif event.type == pygame.MOUSEMOTION:
+                        yes_flag = True
                         mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
                         for i in self.all_sprites:
-                            i.click_check(mouse_sprite)
-                        yes_flag = False
-                elif event.type == pygame.MOUSEMOTION:
-                    yes_flag = True
-                    mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
-                    for i in self.all_sprites:
-                        i.pos_check(mouse_sprite)
-            self.all_sprites.update()
-            pygame.mouse.set_visible(True)
-            if self.fon:
-                self.screen.blit(pygame.transform.scale(self.fon, (self.rect.w, self.rect.h)), (0, 0))
-            self.all_sprites.draw(self.screen)
-            pygame.display.flip()
+                            i.pos_check(mouse_sprite)
+                self.all_sprites.update()
+                pygame.mouse.set_visible(True)
+                if self.fon:
+                    self.screen.blit(pygame.transform.scale(self.fon, (self.rect.w, self.rect.h)), (0, 0))
+                self.all_sprites.draw(self.screen)
+                pygame.display.flip()
+        except SystemExit:
+            pygame.quit()
+            os._exit(0)
 
     def addWidget(self, wid):
         self.all_sprites.add(wid)
@@ -242,7 +249,8 @@ class UBackButton(UWidget):
         self.gen_menu = gen_menu
 
     def draw(self, color='black'):
-        self.image = pygame.transform.scale(load_image(r'..\ui_images\ButtonsStyle1_04.png', -1), (self.pos[2], self.pos[3]))
+        self.image = pygame.transform.scale(load_image(r'..\ui_images\ButtonsStyle1_04.png', -1),
+                                            (self.pos[2], self.pos[3]))
         self.rect = self.image.get_rect()
         pygame.draw.rect(self.image, 'black', self.pos)
         self.rect.x = self.pos[0]
