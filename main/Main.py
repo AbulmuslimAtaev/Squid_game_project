@@ -5,7 +5,7 @@ from SupportFuncs import load_image
 from dbManager import dbManager
 from UT import UMenu, ULevelsPlace, UBackButton, UButton, UMusicButton, UFinalWindow
 from Game import Game
-
+pygame.init()
 
 def go_to_levels():
     screen2 = pygame.display.set_mode((700, 500))
