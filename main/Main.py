@@ -1,15 +1,15 @@
 import sys
-
 import pygame
 from SupportFuncs import load_image
 from dbManager import dbManager
 from UT import UMenu, ULevelsPlace, UBackButton, UButton, UMusicButton, UFinalWindow
 from Game import Game
-pygame.init()
+
 
 def go_to_levels():
     screen2 = pygame.display.set_mode((700, 500))
     menu_lvl = UMenu(screen2, color='Gray', transparent=False)
+    menu_lvl.changeMouseConstantToClick(pygame.MOUSEBUTTONDOWN)
     levels_place = ULevelsPlace(menu_lvl, start_the_game)
     update_levels(levels_place)
     levels_place.add_update_levels(update_levels)
@@ -24,19 +24,21 @@ def update_levels(levels_place):
         if res == 0:
             levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}', name)
         else:
-            levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}, {res}%, {round(float(time))}s', name)
+            levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}, {res}%, {round(float(time))}s',
+                                  name)
 
 
-def start_the_game(lvl_name, menu1):
-    game = Game(lvl_name, menu1, not msc_btn.music_is)
+def start_the_game(lvl_name, menu):
+    game = Game(lvl_name, menu, not msc_btn.music_is)
     game.run()
     db_manager = dbManager('../data/database.sqlite')
-    final_win = UFinalWindow(game.all_sprites, menu1.screen)
-    final_win.addButton('Back', [pygame.event.clear, final_win.menu.close, pygame.mixer.music.stop])
+    final_win = UFinalWindow(game.all_sprites, menu.screen)
+    final_win.addButton('Back', [final_win.menu.close, pygame.mixer.music.stop])
     final_win.addButton('Quit', sys.exit)
     final_win.addLabel(f'{game.process}% | {game.time_str}s', (350, 180), (153, 204, 51))
     if game.win_flag and not game.pause_flag:
-        db_manager.set_data('levels_result', {'result': 100, 'time': game.time_str}, {'level_name = ': f'"{lvl_name}"'})
+        db_manager.update_data('levels_result', {'result': 100, 'time': game.time_str},
+                               {'level_name = ': f'"{lvl_name}"'})
         final_win.menu.setFon(load_image('../ui_images/WinPlace.png'))
         final_win.go()
     elif not game.pause_flag:

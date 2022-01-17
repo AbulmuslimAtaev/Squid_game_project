@@ -70,6 +70,7 @@ class Game:
         igla_flag = False
         time = float(self.time_str)
         flag = False, count_of_values
+        pygame.time.Clock().tick(10)
         if len(str(round(time))) <= 1:
             self.time_str = "0" + self.time_str
         while self.running:
@@ -81,9 +82,9 @@ class Game:
                 if event.type == self.MYEVENTTYPE2:
                     time = round(time + 0.1, 2)
                 if event.type == self.MYEVENTTYPE3:
-                    self.db_manager.set_data('levels_result',
-                                             {'result': self.process, 'time': self.time_str},
-                                             {'level_name =': f"'{self.image_name}'", 'result <': self.process})
+                    self.db_manager.update_data('levels_result',
+                                                {'result': self.process, 'time': self.time_str},
+                                                {'level_name =': f"'{self.image_name}'", 'result <': self.process})
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.music_is:
                         pygame.mixer.Channel(0).unpause()
