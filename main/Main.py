@@ -49,6 +49,8 @@ def start_the_game(lvl_name, menu):
 def main():
     pygame.init()
     pygame.display.set_caption("PySquid")
+    icon = pygame.image.load("../ui_images/icon.png")
+    pygame.display.set_icon(icon)
     width, height = 700, 500
     screen = pygame.display.set_mode((width, height))
     menu = UMenu(screen)
