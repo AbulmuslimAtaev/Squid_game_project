@@ -22,9 +22,9 @@ def update_levels(levels_place):
     db_manager = dbManager('../data/database.sqlite')
     for name, res, time in db_manager.get_data('levels_result', '*', ''):
         if res == 0:
-            levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}', name)
+            levels_place.addLevel(load_image(fr'../images/{name}.png', -1), f'{name}', name)
         else:
-            levels_place.addLevel(load_image(fr'..\images\{name}.png', -1), f'{name}, {res}%, {round(float(time))}s',
+            levels_place.addLevel(load_image(fr'../images/{name}.png', -1), f'{name}, {res}%, {round(float(time))}s',
                                   name)
 
 

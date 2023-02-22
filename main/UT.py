@@ -166,7 +166,7 @@ class ULevelsPlace(UWidget):
                     self.image.blit(pygame.transform.scale(load_image('../ui_images/back_image.png', -1),
                                                            (part_x, (self.rect.h - 10) // self.cols)),
                                     ((10 * j + part_x * (j - 1), 10 + (i * self.rect.h + 10) // self.cols - 10)))
-                    cookie_img = load_image(r'..\images\cookie.png')
+                    cookie_img = load_image(r'../images/cookie.png')
                     cookie_img = pygame.transform.scale(cookie_img, (part_x, (self.rect.h - 120) // self.cols))
                     self.image.blit(cookie_img,
                                     (10 * j + part_x * (j - 1),
@@ -212,7 +212,7 @@ class UMusicButton(UWidget):
         self.funcs = funcs
 
     def draw(self, color='black'):
-        self.image = pygame.transform.scale(load_image(r'..\ui_images\ButtonsStyle10_05.png'), (100, 100))
+        self.image = pygame.transform.scale(load_image(r'../ui_images/ButtonsStyle10_05.png'), (100, 100))
         self.rect = self.image.get_rect()
         self.rect.x = 10
         self.rect.y = self.menu.rect.h - self.rect.h - 10
@@ -249,7 +249,7 @@ class UBackButton(UWidget):
         self.gen_menu = gen_menu
 
     def draw(self, color='black'):
-        self.image = pygame.transform.scale(load_image(r'..\ui_images\ButtonsStyle1_04.png', -1),
+        self.image = pygame.transform.scale(load_image(r'../ui_images/ButtonsStyle1_04.png', -1),
                                             (self.pos[2], self.pos[3]))
         self.rect = self.image.get_rect()
         pygame.draw.rect(self.image, 'black', self.pos)
@@ -308,7 +308,7 @@ class UPauseMenu(UWidget):
 class UPauseButton(pygame.sprite.Sprite):
     def __init__(self, group, gen_menu, screen):
         super(UPauseButton, self).__init__(group)
-        self.image = pygame.transform.scale(load_image(r'..\ui_images\ButtonsStyle10_02.png'), (100, 100))
+        self.image = pygame.transform.scale(load_image(r'../ui_images/ButtonsStyle10_02.png'), (100, 100))
         self.rect = self.image.get_rect()
         self.gen_menu = gen_menu
         self.screen = screen

@@ -9,7 +9,7 @@ class Igla(pygame.sprite.Sprite):
         self.num = cycle(list(range(0, 17)) + (list(range(16, -1, -1))))
         for i in range(8):
             next(self.num)
-        self.images = [load_image(fr"..\images\animation\pic{i}.png", None) for i in range(0, 17)]
+        self.images = [load_image(fr"../images/animation/pic{i}.png", None) for i in range(0, 17)]
         self.image = self.images[next(self.num)]
         self.rect = self.image.get_rect()
         self.rect.x = (size[0] - self.rect.w) // 2
