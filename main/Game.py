@@ -75,6 +75,7 @@ class Game:
         pygame.time.Clock().tick(10)
         if len(str(round(time))) <= 1:
             self.time_str = "0" + self.time_str
+        flaf = False
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -93,12 +94,14 @@ class Game:
                         pygame.mixer.Channel(0).unpause()
                     mouse_sprite.rect.x, mouse_sprite.rect.y = pygame.mouse.get_pos()
                     self.pause_flag = pause.click_check(mouse_sprite)
+                    flaf = True
                 if event.type == pygame.MOUSEBUTTONUP:
                     if self.music_is:
                         pygame.mixer.Channel(0).pause()
+                    flaf = False
             press = pygame.mouse.get_pressed()
             pos = pygame.mouse.get_pos()
-            if press[0]:
+            if flaf:
                 if not self.pause_flag:
                     if igla_flag:
                         igla.turn()
